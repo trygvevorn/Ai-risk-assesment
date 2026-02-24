@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metier — AI Risk Assessment Tool</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; connect-src https://api.anthropic.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; base-uri 'self'; frame-ancestors 'none';">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ───────────────────── CSS Custom Properties ───────────────────── */
+        :root {
+            --metier-blue: #00205B;
+            --metier-beige: #FFEAE4;
+            --metier-white: #FFFFFF;
+            --green-100: #C5F9DA;
+            --green-200: #8DF1B5;
+            --green-300: #0D896A;
+            --green-400: #1A5345;
+            --blue-100: #B4DBFF;
+            --blue-200: #77BEFF;
+            --blue-300: #59748D;
+            --blue-400: #245787;
+            --grey-100: #F0F1F5;
+            --grey-200: #95979E;
+            --grey-300: #414148;
+            --ui-black: #0B0B0C;
+            --font-primary: 'Work Sans', Arial, sans-serif;
+
+            --risk-green: #2a9d4e;
+            --risk-green-bg: #e6f7ec;
+            --risk-yellow: #d4a017;
+            --risk-yellow-bg: #fef9e7;
+            --risk-red: #c0392b;
+            --risk-red-bg: #fdecea;
+        }
+
+        /* ───────────────────── Reset & Base ───────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--metier-blue);
+            background: var(--metier-beige);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ───────────────────── Header ───────────────────── */
+        .header {
+            background: var(--metier-blue);
+            color: var(--metier-white);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .header-brand {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .header .tagline {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--metier-beige);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--blue-100);
+        }
+
+        /* ───────────────────── Layout ───────────────────── */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ───────────────────── Card ───────────────────── */
+        .card {
+            background: var(--metier-white);
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,32,91,0.08);
+            overflow: hidden;
+        }
+        .card-header {
+            background: var(--metier-blue);
+            color: var(--metier-white);
+            padding: 0.85rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+        }
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* ───────────────────── Input Panel ───────────────────── */
+        .input-panel {
+            background: var(--metier-blue);
+            border-radius: 12px;
+        }
+        .input-panel .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 0 0 12px 12px;
+        }
+        .field-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.82rem;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--blue-300);
+        }
+        .field-group input,
+        .field-group select,
+        .field-group textarea {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1.5px solid var(--grey-100);
+            border-radius: 8px;
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            color: var(--metier-blue);
+            background: var(--metier-white);
+            transition: border-color 0.2s;
+        }
+        .field-group input:focus,
+        .field-group select:focus,
+        .field-group textarea:focus {
+            outline: none;
+            border-color: var(--blue-200);
+            box-shadow: 0 0 0 3px rgba(119,190,255,0.2);
+        }
+        .field-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        .field-group .hint {
+            font-size: 0.75rem;
+            color: var(--grey-200);
+            margin-top: 0.25rem;
+        }
+
+        .api-key-disclaimer {
+            font-size: 0.72rem;
+            color: var(--blue-300);
+            background: var(--metier-beige);
+            padding: 0.5rem 0.7rem;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+
+        .btn-primary {
+            background: var(--metier-blue);
+            color: var(--metier-white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-family: var(--font-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover { background: var(--blue-400); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--metier-white);
+            color: var(--metier-blue);
+            border: 1.5px solid var(--metier-blue);
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background: var(--grey-100); }
+
+        /* ───────────────────── Spinner ───────────────────── */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid var(--metier-beige);
+            border-top-color: var(--metier-white);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .btn-primary.loading .spinner { display: block; }
+        .btn-primary.loading .btn-label { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ───────────────────── Output Panel ───────────────────── */
+        .output-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .output-placeholder {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--blue-300);
+            background: var(--metier-white);
+        }
+        .output-placeholder h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--blue-300);
+        }
+        .output-placeholder p {
+            font-size: 0.88rem;
+        }
+
+        /* ───────────────────── Risk Matrix ───────────────────── */
+        .matrix-section { display: none; }
+        .matrix-section.visible { display: block; }
+
+        .matrix-container {
+            padding: 1.25rem;
+        }
+
+        .risk-matrix-wrapper {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto auto;
+            gap: 0;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .matrix-corner {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--grey-200);
+        }
+
+        .matrix-col-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--metier-blue);
+            padding: 0.5rem 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .matrix-row-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--metier-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            writing-mode: horizontal-tb;
+        }
+
+        .matrix-cell {
+            min-height: 75px;
+            border: 1.5px solid var(--metier-white);
+            border-radius: 6px;
+            padding: 0.4rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+        }
+        .matrix-cell.green  { background: var(--risk-green-bg); }
+        .matrix-cell.yellow { background: var(--risk-yellow-bg); }
+        .matrix-cell.red    { background: var(--risk-red-bg); }
+
+        .matrix-label {
+            position: relative;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--grey-200);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .risk-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--metier-white);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            position: relative;
+            z-index: 1;
+        }
+        .risk-chip:hover { transform: scale(1.15); }
+        .risk-chip.highlighted {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 3px var(--metier-blue), 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .risk-chip.green  { background: var(--risk-green); }
+        .risk-chip.yellow { background: var(--risk-yellow); }
+        .risk-chip.red    { background: var(--risk-red); }
+
+        .matrix-axis-label {
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--blue-300);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.5rem;
+        }
+        .matrix-y-label {
+            position: absolute;
+            left: -2rem;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--blue-300);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        /* ───────────────────── Risk Summary Bar ───────────────────── */
+        .risk-summary {
+            display: flex;
+            gap: 1rem;
+            padding: 0.85rem 1.25rem;
+            background: var(--metier-beige);
+            border-bottom: 1px solid rgba(0,32,91,0.06);
+        }
+        .summary-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .summary-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .summary-dot.red { background: var(--risk-red); }
+        .summary-dot.yellow { background: var(--risk-yellow); }
+        .summary-dot.green { background: var(--risk-green); }
+
+        /* ───────────────────── Risk Table ───────────────────── */
+        .table-section { display: none; }
+        .table-section.visible { display: block; }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.85rem 1.25rem;
+            border-bottom: 1px solid var(--grey-100);
+            flex-wrap: wrap;
+        }
+
+        .risk-table-wrapper {
+            overflow-x: auto;
+        }
+        .risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.84rem;
+        }
+        .risk-table thead th {
+            background: var(--metier-blue);
+            color: var(--metier-white);
+            padding: 0.7rem 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+        .risk-table tbody tr {
+            border-bottom: 1px solid var(--grey-100);
+            transition: background 0.15s;
+        }
+        .risk-table tbody tr:hover { background: rgba(0,32,91,0.02); }
+        .risk-table tbody tr.highlighted { background: rgba(0,32,91,0.06); }
+
+        .risk-table tbody td {
+            padding: 0.65rem 0.8rem;
+            vertical-align: top;
+        }
+
+        .risk-table .risk-id {
+            font-weight: 700;
+            text-align: center;
+            width: 40px;
+        }
+        .risk-table .risk-category-cell {
+            font-weight: 600;
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+        .risk-table .risk-desc {
+            min-width: 200px;
+            line-height: 1.5;
+        }
+
+        .risk-table select {
+            padding: 0.3rem 0.5rem;
+            border: 1.5px solid var(--grey-100);
+            border-radius: 6px;
+            font-family: var(--font-primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--metier-blue);
+            background: var(--metier-white);
+            cursor: pointer;
+        }
+        .risk-table select:focus {
+            outline: none;
+            border-color: var(--blue-200);
+        }
+
+        .risk-table input[type="text"] {
+            padding: 0.3rem 0.5rem;
+            border: 1.5px solid var(--grey-100);
+            border-radius: 6px;
+            font-family: var(--font-primary);
+            font-size: 0.82rem;
+            color: var(--metier-blue);
+            width: 120px;
+        }
+        .risk-table input[type="text"]:focus {
+            outline: none;
+            border-color: var(--blue-200);
+        }
+
+        .risk-level-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .risk-level-badge.green { background: var(--risk-green-bg); color: var(--risk-green); }
+        .risk-level-badge.yellow { background: var(--risk-yellow-bg); color: var(--risk-yellow); }
+        .risk-level-badge.red { background: var(--risk-red-bg); color: var(--risk-red); }
+
+        .mitigation-text {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            min-width: 180px;
+        }
+
+        /* ───────────────────── Error Message ───────────────────── */
+        .error-message {
+            display: none;
+            background: var(--risk-red-bg);
+            color: var(--risk-red);
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .error-message.visible { display: block; }
+
+        /* ───────────────────── Footer ───────────────────── */
+        .footer {
+            background: var(--metier-blue);
+            color: rgba(255,255,255,0.7);
+            padding: 1.25rem 2rem;
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.72rem;
+        }
+        .footer a {
+            color: var(--metier-beige);
+            text-decoration: underline;
+        }
+
+        /* ───────────────────── Print Styles ───────────────────── */
+        @media print {
+            body { background: white; }
+            .header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .input-panel, .table-actions, .api-key-disclaimer { display: none !important; }
+            .footer { background: none; color: var(--grey-200); }
+            .app-container { grid-template-columns: 1fr; padding: 0; }
+            .card { box-shadow: none; break-inside: avoid; }
+            .risk-table thead th {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            .matrix-cell, .risk-chip, .risk-level-badge, .summary-dot {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ───────────────────── Header ───────────────────── -->
+<header class="header">
+    <div class="header-brand">
+        <h1>Metier</h1>
+        <span class="tagline">A Tetra Tech Company</span>
+    </div>
+    <span class="header-subtitle">AI-Powered Project Risk Assessment</span>
+</header>
+
+<!-- ───────────────────── Main Content ───────────────────── -->
+<main class="app-container">
+
+    <!-- Input Panel -->
+    <aside class="input-panel card">
+        <div class="card-header">Project Configuration</div>
+        <div class="card-body">
+            <div class="field-group">
+                <label for="api-key">Anthropic API Key</label>
+                <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
+                <p class="api-key-disclaimer">Your API key is held in browser memory for this session only and is sent only to Anthropic's API. It is never stored or logged.</p>
+            </div>
+
+            <div class="field-group">
+                <label for="project-category">Project Category</label>
+                <select id="project-category">
+                    <option value="Complex">Complex — High financial / high risk</option>
+                    <option value="Regular">Regular — Medium financial / medium risk</option>
+                    <option value="Simple">Simple — Low financial / low risk</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label for="project-context">Project Description</label>
+                <textarea id="project-context" placeholder="Describe the project, contract terms, team, timeline, scope of work..."></textarea>
+                <p class="hint">The more detail you provide, the more specific the risk assessment will be.</p>
+            </div>
+
+            <button class="btn-primary" id="generate-btn" onclick="generateRiskAssessment()">
+                <span class="btn-label">Generate Risk Assessment</span>
+                <div class="spinner"></div>
+            </button>
+
+            <div class="error-message" id="error-msg"></div>
+
+            <button class="btn-secondary" id="load-example-btn" onclick="loadExample()" style="align-self: center;">
+                Load Example Project
+            </button>
+        </div>
+    </aside>
+
+    <!-- Output Panel -->
+    <section class="output-panel">
+        <!-- Placeholder -->
+        <div class="card output-placeholder" id="placeholder">
+            <div class="card-body">
+                <h3>No Risk Assessment Generated Yet</h3>
+                <p>Enter your project details and click "Generate Risk Assessment" to produce<br>an AI-powered risk register following the DNV ES framework.</p>
+            </div>
+        </div>
+
+        <!-- Risk Matrix Card -->
+        <div class="card matrix-section" id="matrix-section">
+            <div class="card-header">Risk Matrix — Likelihood vs. Consequence</div>
+            <div class="risk-summary" id="risk-summary"></div>
+            <div class="matrix-container">
+                <div class="risk-matrix-wrapper" id="risk-matrix">
+                    <!-- Corner -->
+                    <div class="matrix-corner">
+                        <span style="font-size:0.65rem;">LIKELIHOOD /<br>CONSEQUENCE</span>
+                    </div>
+                    <!-- Column headers -->
+                    <div class="matrix-col-header">Low</div>
+                    <div class="matrix-col-header">Medium</div>
+                    <div class="matrix-col-header">High</div>
+
+                    <!-- Row: High likelihood -->
+                    <div class="matrix-row-header">High</div>
+                    <div class="matrix-cell yellow" id="cell-high-low"></div>
+                    <div class="matrix-cell red" id="cell-high-medium"></div>
+                    <div class="matrix-cell red" id="cell-high-high"></div>
+
+                    <!-- Row: Medium likelihood -->
+                    <div class="matrix-row-header">Medium</div>
+                    <div class="matrix-cell green" id="cell-medium-low"></div>
+                    <div class="matrix-cell yellow" id="cell-medium-medium"></div>
+                    <div class="matrix-cell red" id="cell-medium-high"></div>
+
+                    <!-- Row: Low likelihood -->
+                    <div class="matrix-row-header">Low</div>
+                    <div class="matrix-cell green" id="cell-low-low"></div>
+                    <div class="matrix-cell green" id="cell-low-medium"></div>
+                    <div class="matrix-cell yellow" id="cell-low-high"></div>
+                </div>
+                <div class="matrix-axis-label">Consequence</div>
+            </div>
+        </div>
+
+        <!-- Risk Register Table Card -->
+        <div class="card table-section" id="table-section">
+            <div class="card-header">Risk Register</div>
+            <div class="table-actions">
+                <button class="btn-secondary" onclick="exportCSV()">Export to CSV</button>
+                <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
+            </div>
+            <div class="risk-table-wrapper">
+                <table class="risk-table" id="risk-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Likelihood</th>
+                            <th>Consequence</th>
+                            <th>Risk Level</th>
+                            <th>Mitigating Action</th>
+                            <th>Responsible</th>
+                        </tr>
+                    </thead>
+                    <tbody id="risk-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<!-- ───────────────────── Footer ───────────────────── -->
+<footer class="footer">
+    <div>Methodology: <a href="https://www.iso.org/obp/ui/#iso:std:iso:31000:ed-2:v1:en" target="_blank" rel="noopener">ISO 31000:2018</a> &amp; <a href="https://www.iso.org/standard/72140.html" target="_blank" rel="noopener">IEC 31010:2019</a> · DNV ES Risk Framework</div>
+    <div>Built by Metier — A Tetra Tech Company</div>
+</footer>
+
+<!-- ───────────────────── JavaScript ───────────────────── -->
+<script>
+/* ═════════════════════════════════════════════════════════
+   State
+   ═════════════════════════════════════════════════════════ */
+let risks = [];
+let highlightedRiskId = null;
+
+/* ═════════════════════════════════════════════════════════
+   DNV Risk Matrix Logic
+   ═════════════════════════════════════════════════════════ */
+const RISK_MATRIX = {
+    'High-High': 'RED', 'High-Medium': 'RED', 'High-Low': 'YELLOW',
+    'Medium-High': 'RED', 'Medium-Medium': 'YELLOW', 'Medium-Low': 'GREEN',
+    'Low-High': 'YELLOW', 'Low-Medium': 'GREEN', 'Low-Low': 'GREEN'
+};
+
+function calcRiskLevel(likelihood, consequence) {
+    return RISK_MATRIX[`${likelihood}-${consequence}`] || 'GREEN';
+}
+
+/* ═════════════════════════════════════════════════════════
+   Example Project (from project-context.md)
+   ═════════════════════════════════════════════════════════ */
+const EXAMPLE_PROJECT = `A client currently undertakes audits of their high-pressure pipelines to assess their compliance with a named standard and to identify any infringements. To demonstrate compliance, all infringements are assessed to determine the tolerability of the associated risk.
+
+Contract & Client:
+- Fixed price: 600,000 Euros
+- Client status: Gold customer
+- Client's contractual T&Cs with high liability and fines for late deliveries
+
+Project Tasks:
+1. Screen against previous results from locations
+2. Perform a site-specific risk assessment for the remaining two locations (in France and Algeria)
+
+Timeline:
+- Starts first day of next month, duration 5 months
+- All final deliverables/reports must be submitted by end of 5 months
+
+Team & Resources:
+- 5 team members from different countries
+- Only 2 resources with required high-pressure competence in Energy Systems
+- Project Sponsor secured commitment from line manager of one specialist
+- Resources from Malaysia and Australia
+- Work involves sub-contractor expertise outside DNV ES
+- London office responsible but has never worked for this client (client is known to DNV Energy Systems overall)`;
+
+function loadExample() {
+    document.getElementById('project-category').value = 'Complex';
+    document.getElementById('project-context').value = EXAMPLE_PROJECT;
+}
+
+/* ═════════════════════════════════════════════════════════
+   Prompt Construction
+   ═════════════════════════════════════════════════════════ */
+function buildSystemPrompt() {
+    return `You are a senior risk management consultant specialising in energy infrastructure, industrial projects, and project management. You follow ISO 31000:2018 (Risk Management — Guidelines) and IEC 31010:2019 (Risk Assessment Techniques) methodologies rigorously. You work for DNV Energy Systems.
+
+Your task is to produce a comprehensive project risk register. You must:
+1. Identify 8-12 distinct, project-specific risks (threats only — not opportunities).
+2. Categorise each risk under one of these categories: Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder.
+3. For each risk, assess Likelihood and Consequence using DNV's 3-level scale.
+4. Provide a clear root cause and actionable mitigating actions.
+5. Be specific to the project described — avoid generic boilerplate risks.
+
+DNV Risk Matrix Definitions:
+
+CONSEQUENCE:
+- High: Cost impact > 500K NOK, OR more than one month delay on finish date, OR major faults requiring shutdown causing unacceptable delays.
+- Medium: Cost impact 50K–500K NOK, OR delay on major milestones but no impact on finish date, OR faults with minor impact on system performance.
+- Low: Cost impact < 50K NOK, OR delay in individual activities without milestone impact, OR minor faults without effect on performance.
+
+LIKELIHOOD:
+- High: > 70% probability
+- Medium: 30%–70% probability
+- Low: < 30% probability
+
+RISK LEVEL MATRIX (Likelihood x Consequence):
+         |  Low Consequence  |  Medium Consequence  |  High Consequence
+High     |     YELLOW        |       RED            |      RED
+Medium   |     GREEN         |       YELLOW         |      RED
+Low      |     GREEN         |       GREEN          |      YELLOW
+
+Output ONLY valid JSON — no markdown fences, no commentary. Use this exact structure:
+{
+  "risks": [
+    {
+      "id": 1,
+      "category": "...",
+      "description": "...",
+      "likelihood": "High|Medium|Low",
+      "consequence": "High|Medium|Low",
+      "root_cause": "...",
+      "mitigation": "..."
+    }
+  ]
+}`;
+}
+
+function buildUserPrompt(category, context) {
+    return `Project Category: ${category}
+
+Project Description:
+${context}
+
+Based on the above project details, generate a comprehensive risk register with 8-12 specific risks. Remember: output valid JSON only.`;
+}
+
+/* ═════════════════════════════════════════════════════════
+   Claude API Call
+   ═════════════════════════════════════════════════════════ */
+async function callClaudeAPI(apiKey, systemPrompt, userPrompt) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4096,
+            temperature: 0.3,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userPrompt }]
+        })
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        if (response.status === 401) throw new Error('Invalid API key. Please check your Anthropic API key and try again.');
+        if (response.status === 429) throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+        throw new Error(err.error?.message || `API error (${response.status})`);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text;
+    if (!text) throw new Error('Empty response from the API. Please try again.');
+    return text;
+}
+
+/* ═════════════════════════════════════════════════════════
+   Main Generate Flow
+   ═════════════════════════════════════════════════════════ */
+async function generateRiskAssessment() {
+    const apiKey = document.getElementById('api-key').value.trim();
+    const category = document.getElementById('project-category').value;
+    const context = document.getElementById('project-context').value.trim();
+    const btn = document.getElementById('generate-btn');
+    const errEl = document.getElementById('error-msg');
+
+    // Validation
+    errEl.classList.remove('visible');
+    if (!apiKey) return showError('Please enter your Anthropic API key.');
+    if (!context) return showError('Please provide a project description.');
+
+    // Loading state
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        const systemPrompt = buildSystemPrompt();
+        const userPrompt = buildUserPrompt(category, context);
+        const raw = await callClaudeAPI(apiKey, systemPrompt, userPrompt);
+
+        // Parse JSON — handle potential markdown fences
+        let cleaned = raw.trim();
+        if (cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+        }
+
+        let parsed;
+        try {
+            parsed = JSON.parse(cleaned);
+        } catch (e) {
+            throw new Error('The AI response was not valid JSON. Please try again.');
+        }
+
+        if (!Array.isArray(parsed.risks) || parsed.risks.length === 0) {
+            throw new Error('No risks were generated. Please try again with more project detail.');
+        }
+
+        // Populate state
+        risks = parsed.risks.map((r, i) => ({
+            id: r.id || (i + 1),
+            category: r.category || 'General',
+            description: r.description || '',
+            likelihood: normLevel(r.likelihood),
+            consequence: normLevel(r.consequence),
+            root_cause: r.root_cause || '',
+            mitigation: r.mitigation || '',
+            responsible: ''
+        }));
+
+        // Compute risk levels
+        risks.forEach(r => { r.riskLevel = calcRiskLevel(r.likelihood, r.consequence); });
+
+        // Render
+        renderAll();
+
+    } catch (err) {
+        showError(err.message);
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+function normLevel(val) {
+    if (!val) return 'Medium';
+    const v = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+    if (['High', 'Medium', 'Low'].includes(v)) return v;
+    return 'Medium';
+}
+
+function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.classList.add('visible');
+}
+
+/* ═════════════════════════════════════════════════════════
+   Rendering
+   ═════════════════════════════════════════════════════════ */
+function renderAll() {
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('matrix-section').classList.add('visible');
+    document.getElementById('table-section').classList.add('visible');
+    renderMatrix();
+    renderSummary();
+    renderTable();
+}
+
+function renderMatrix() {
+    // Clear existing chips
+    document.querySelectorAll('.risk-chip').forEach(el => el.remove());
+    // Remove old "no-risks" labels
+    document.querySelectorAll('.matrix-label').forEach(el => el.remove());
+
+    // Build a map of cell -> risks
+    const cellMap = {};
+    risks.forEach(r => {
+        const key = `${r.likelihood.toLowerCase()}-${r.consequence.toLowerCase()}`;
+        if (!cellMap[key]) cellMap[key] = [];
+        cellMap[key].push(r);
+    });
+
+    // Place chips
+    const cellIds = {
+        'high-low': 'cell-high-low', 'high-medium': 'cell-high-medium', 'high-high': 'cell-high-high',
+        'medium-low': 'cell-medium-low', 'medium-medium': 'cell-medium-medium', 'medium-high': 'cell-medium-high',
+        'low-low': 'cell-low-low', 'low-medium': 'cell-low-medium', 'low-high': 'cell-low-high'
+    };
+
+    Object.entries(cellIds).forEach(([key, id]) => {
+        const cell = document.getElementById(id);
+        const riskList = cellMap[key] || [];
+        if (riskList.length === 0) {
+            // empty cell label
+            const lbl = document.createElement('span');
+            lbl.className = 'matrix-label';
+            lbl.textContent = cell.classList.contains('red') ? 'RED' : cell.classList.contains('yellow') ? 'YELLOW' : 'GREEN';
+            cell.appendChild(lbl);
+        } else {
+            riskList.forEach(r => {
+                const chip = document.createElement('div');
+                chip.className = `risk-chip ${r.riskLevel.toLowerCase()}`;
+                chip.textContent = r.id;
+                chip.title = `R${r.id}: ${r.description.substring(0, 60)}...`;
+                chip.setAttribute('role', 'button');
+                chip.setAttribute('aria-label', `Risk ${r.id}: ${r.category}`);
+                chip.setAttribute('tabindex', '0');
+                chip.onclick = () => toggleHighlight(r.id);
+                chip.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleHighlight(r.id); } };
+                if (highlightedRiskId === r.id) chip.classList.add('highlighted');
+                cell.appendChild(chip);
+            });
+        }
+    });
+}
+
+function renderSummary() {
+    const counts = { RED: 0, YELLOW: 0, GREEN: 0 };
+    risks.forEach(r => counts[r.riskLevel]++);
+    const el = document.getElementById('risk-summary');
+    el.innerHTML = `
+        <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} High</span>
+        <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} Medium</span>
+        <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} Low</span>
+        <span class="summary-stat" style="margin-left:auto; color:var(--grey-200); font-weight:400;">${risks.length} risks identified</span>
+    `;
+}
+
+function renderTable() {
+    const tbody = document.getElementById('risk-table-body');
+    tbody.innerHTML = '';
+
+    risks.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.id = `risk-row-${r.id}`;
+        if (highlightedRiskId === r.id) tr.classList.add('highlighted');
+        tr.onclick = (e) => {
+            if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+            toggleHighlight(r.id);
+        };
+
+        tr.innerHTML = `
+            <td class="risk-id">${r.id}</td>
+            <td class="risk-category-cell">${escHTML(r.category)}</td>
+            <td class="risk-desc">
+                <div>${escHTML(r.description)}</div>
+                ${r.root_cause ? `<div style="margin-top:0.3rem;font-size:0.76rem;color:var(--grey-200);"><strong>Root cause:</strong> ${escHTML(r.root_cause)}</div>` : ''}
+            </td>
+            <td>
+                <select aria-label="Likelihood for risk ${r.id}" onchange="updateRisk(${r.id}, 'likelihood', this.value)">
+                    <option value="Low" ${r.likelihood === 'Low' ? 'selected' : ''}>Low</option>
+                    <option value="Medium" ${r.likelihood === 'Medium' ? 'selected' : ''}>Medium</option>
+                    <option value="High" ${r.likelihood === 'High' ? 'selected' : ''}>High</option>
+                </select>
+            </td>
+            <td>
+                <select aria-label="Consequence for risk ${r.id}" onchange="updateRisk(${r.id}, 'consequence', this.value)">
+                    <option value="Low" ${r.consequence === 'Low' ? 'selected' : ''}>Low</option>
+                    <option value="Medium" ${r.consequence === 'Medium' ? 'selected' : ''}>Medium</option>
+                    <option value="High" ${r.consequence === 'High' ? 'selected' : ''}>High</option>
+                </select>
+            </td>
+            <td><span class="risk-level-badge ${r.riskLevel.toLowerCase()}">${r.riskLevel}</span></td>
+            <td class="mitigation-text">${escHTML(r.mitigation)}</td>
+            <td><input type="text" value="${escHTML(r.responsible)}" placeholder="—" aria-label="Responsible for risk ${r.id}" onchange="updateRisk(${r.id}, 'responsible', this.value)"></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* ═════════════════════════════════════════════════════════
+   Interaction
+   ═════════════════════════════════════════════════════════ */
+function updateRisk(id, field, value) {
+    const risk = risks.find(r => r.id === id);
+    if (!risk) return;
+    risk[field] = value;
+    if (field === 'likelihood' || field === 'consequence') {
+        risk.riskLevel = calcRiskLevel(risk.likelihood, risk.consequence);
+        renderMatrix();
+        renderSummary();
+        // Update badge in the table row
+        const row = document.getElementById(`risk-row-${id}`);
+        if (row) {
+            const badge = row.querySelector('.risk-level-badge');
+            if (badge) {
+                badge.className = `risk-level-badge ${risk.riskLevel.toLowerCase()}`;
+                badge.textContent = risk.riskLevel;
+            }
+        }
+    }
+}
+
+function toggleHighlight(id) {
+    highlightedRiskId = highlightedRiskId === id ? null : id;
+    // Update chips
+    document.querySelectorAll('.risk-chip').forEach(chip => {
+        chip.classList.toggle('highlighted', parseInt(chip.textContent) === highlightedRiskId);
+    });
+    // Update rows
+    document.querySelectorAll('.risk-table tbody tr').forEach(row => {
+        row.classList.toggle('highlighted', row.id === `risk-row-${highlightedRiskId}`);
+    });
+    // Scroll to row if highlighting
+    if (highlightedRiskId) {
+        const row = document.getElementById(`risk-row-${highlightedRiskId}`);
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+/* ═════════════════════════════════════════════════════════
+   CSV Export
+   ═════════════════════════════════════════════════════════ */
+function exportCSV() {
+    const headers = ['ID', 'Category', 'Description', 'Likelihood', 'Consequence', 'Risk Level', 'Root Cause', 'Mitigating Action', 'Responsible'];
+    const rows = risks.map(r => [
+        r.id,
+        csvEscape(r.category),
+        csvEscape(r.description),
+        r.likelihood,
+        r.consequence,
+        r.riskLevel,
+        csvEscape(r.root_cause),
+        csvEscape(r.mitigation),
+        csvEscape(r.responsible)
+    ]);
+
+    let csv = headers.join(',') + '\n';
+    rows.forEach(row => { csv += row.join(',') + '\n'; });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `risk-register-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function csvEscape(val) {
+    if (!val) return '""';
+    const s = String(val).replace(/"/g, '""');
+    return `"${s}"`;
+}
+
+/* ═════════════════════════════════════════════════════════
+   Utilities
+   ═════════════════════════════════════════════════════════ */
+function escHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
