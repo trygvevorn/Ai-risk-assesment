@@ -4,229 +4,444 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metier — AI Risk Assessment Tool</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; connect-src https://api.anthropic.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; base-uri 'self'; frame-ancestors 'none';">
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src https://api.anthropic.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; base-uri 'self'; frame-ancestors 'none';">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* ───────────────────── CSS Custom Properties ───────────────────── */
         :root {
-            --metier-blue: #00205B;
-            --metier-beige: #FFEAE4;
-            --metier-white: #FFFFFF;
-            --green-100: #C5F9DA;
-            --green-200: #8DF1B5;
-            --green-300: #0D896A;
-            --green-400: #1A5345;
-            --blue-100: #B4DBFF;
-            --blue-200: #77BEFF;
-            --blue-300: #59748D;
-            --blue-400: #245787;
-            --grey-100: #F0F1F5;
-            --grey-200: #95979E;
-            --grey-300: #414148;
-            --ui-black: #0B0B0C;
-            --font-primary: 'Work Sans', Arial, sans-serif;
+            --navy: #00205B;
+            --navy-deep: #001438;
+            --navy-mid: #0a3270;
+            --bg: #EBEEF2;
+            --bg-subtle: #E3E7EC;
+            --white: #FFFFFF;
 
-            --risk-green: #2a9d4e;
-            --risk-green-bg: #e6f7ec;
-            --risk-yellow: #d4a017;
-            --risk-yellow-bg: #fef9e7;
-            --risk-red: #c0392b;
-            --risk-red-bg: #fdecea;
+            --surface: #FFFFFF;
+            --surface-raised: #FAFBFD;
+            --surface-sunken: #F4F5F9;
+            --border-subtle: rgba(0, 32, 91, 0.08);
+            --border-medium: rgba(0, 32, 91, 0.14);
+            --text-primary: #00205B;
+            --text-secondary: #3D5A80;
+            --text-tertiary: #7B8FA8;
+            --text-on-dark: rgba(255, 255, 255, 0.92);
+            --text-on-dark-muted: rgba(255, 255, 255, 0.55);
+
+            --risk-green: #1B8A4A;
+            --risk-green-soft: #E8F5ED;
+            --risk-green-glow: rgba(27, 138, 74, 0.12);
+            --risk-yellow: #C49000;
+            --risk-yellow-soft: #FEF8E6;
+            --risk-yellow-glow: rgba(196, 144, 0, 0.12);
+            --risk-red: #C0392B;
+            --risk-red-soft: #FDECEB;
+            --risk-red-glow: rgba(192, 57, 43, 0.12);
+
+            --accent-blue: #3B82F6;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+
+            --font-body: 'DM Sans', system-ui, sans-serif;
+            --font-logo: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+            --font-display: 'DM Sans', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+
+            --shadow-sm: 0 1px 2px rgba(0, 32, 91, 0.05);
+            --shadow-md: 0 2px 8px rgba(0, 32, 91, 0.06), 0 1px 2px rgba(0, 32, 91, 0.04);
+            --shadow-lg: 0 4px 24px rgba(0, 32, 91, 0.08), 0 2px 6px rgba(0, 32, 91, 0.04);
+            --shadow-glow-blue: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
-        /* ───────────────────── Reset & Base ───────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: var(--font-primary);
-            color: var(--metier-blue);
-            background: var(--metier-beige);
+            font-family: var(--font-body);
+            color: var(--text-primary);
+            background: var(--bg);
             line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ───────────────────── Header ───────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.022;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 128px;
+        }
+
+        /* ── Header ── */
         .header {
-            background: var(--metier-blue);
-            color: var(--metier-white);
-            padding: 1.5rem 2rem;
+            background: var(--navy-deep);
+            background-image: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-mid) 100%);
+            color: var(--text-on-dark);
+            padding: 0 2rem;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+            position: relative;
+            z-index: 10;
         }
-        .header-brand {
-            display: flex;
-            align-items: baseline;
-            gap: 1rem;
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
         }
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-        .header .tagline {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: var(--metier-beige);
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            font-family: var(--font-logo);
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--white);
         }
         .header-subtitle {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 400;
-            color: var(--blue-100);
+            color: var(--text-on-dark-muted);
+            letter-spacing: 0.02em;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .lang-toggle {
+            display: flex;
+            gap: 2px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 100px;
+            padding: 2px;
+        }
+        .lang-chip {
+            padding: 0.2rem 0.5rem;
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.45);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-chip:hover { color: rgba(255,255,255,0.75); }
+        .lang-chip.active {
+            background: var(--white);
+            color: var(--navy);
         }
 
-        /* ───────────────────── Layout ───────────────────── */
+        /* ── Layout ── */
         .app-container {
-            max-width: 1400px;
+            max-width: 1440px;
             margin: 0 auto;
-            padding: 1.5rem;
+            padding: 1.5rem 2rem;
             display: grid;
             grid-template-columns: 380px 1fr;
             gap: 1.5rem;
             align-items: start;
         }
-
-        @media (max-width: 960px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 1000px) {
+            .app-container { grid-template-columns: 1fr; padding: 1rem; }
+            .header { padding: 0 1rem; }
         }
 
-        /* ───────────────────── Card ───────────────────── */
+        /* ── Cards ── */
         .card {
-            background: var(--metier-white);
-            border-radius: 12px;
-            box-shadow: 0 1px 4px rgba(0,32,91,0.08);
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-md);
             overflow: hidden;
+            transition: box-shadow 0.3s ease;
         }
-        .card-header {
-            background: var(--metier-blue);
-            color: var(--metier-white);
+        .card:hover { box-shadow: var(--shadow-lg); }
+
+        .card-header-bar {
             padding: 0.85rem 1.25rem;
-            font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.01em;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-raised);
         }
-        .card-body {
-            padding: 1.25rem;
+        .card-title {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+        .card-title-main {
+            font-family: var(--font-display);
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: none;
+            letter-spacing: -0.01em;
         }
 
-        /* ───────────────────── Input Panel ───────────────────── */
-        .input-panel {
-            background: var(--metier-blue);
-            border-radius: 12px;
-        }
+        /* ── Input Panel ── */
         .input-panel .card-body {
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            gap: 1.15rem;
-            background: rgba(255,255,255,0.95);
-            border-radius: 0 0 12px 12px;
-        }
-        .field-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.82rem;
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--blue-300);
-        }
-        .field-group input,
-        .field-group select,
-        .field-group textarea {
-            width: 100%;
-            padding: 0.65rem 0.85rem;
-            border: 1.5px solid var(--grey-100);
-            border-radius: 8px;
-            font-family: var(--font-primary);
-            font-size: 0.9rem;
-            color: var(--metier-blue);
-            background: var(--metier-white);
-            transition: border-color 0.2s;
-        }
-        .field-group input:focus,
-        .field-group select:focus,
-        .field-group textarea:focus {
-            outline: none;
-            border-color: var(--blue-200);
-            box-shadow: 0 0 0 3px rgba(119,190,255,0.2);
-        }
-        .field-group textarea {
-            resize: vertical;
-            min-height: 150px;
-        }
-        .field-group .hint {
-            font-size: 0.75rem;
-            color: var(--grey-200);
-            margin-top: 0.25rem;
+            gap: 1.1rem;
         }
 
-        .api-key-disclaimer {
-            font-size: 0.72rem;
-            color: var(--blue-300);
-            background: var(--metier-beige);
-            padding: 0.5rem 0.7rem;
-            border-radius: 6px;
+        .field-group label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+        }
+        .field-group select,
+        .field-group textarea,
+        .field-group input[type="text"] {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.84rem;
+            color: var(--text-primary);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            line-height: 1.5;
+        }
+        .field-group select:focus,
+        .field-group textarea:focus,
+        .field-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-glow-blue);
+        }
+        .field-group textarea { resize: vertical; min-height: 140px; }
+        .field-group .hint {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-top: 0.3rem;
             line-height: 1.5;
         }
 
-        .btn-primary {
-            background: var(--metier-blue);
-            color: var(--metier-white);
+        /* ── Collapsible Advanced ── */
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
             border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            font-family: var(--font-primary);
-            font-size: 0.95rem;
+            font-family: var(--font-body);
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 0;
+            letter-spacing: 0.04em;
+            transition: color 0.2s;
+        }
+        .advanced-toggle:hover { color: var(--text-secondary); }
+        .advanced-toggle svg {
+            width: 14px; height: 14px;
+            transition: transform 0.25s ease;
+        }
+        .advanced-toggle.open svg { transform: rotate(180deg); }
+        .advanced-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+            opacity: 0;
+        }
+        .advanced-section.open {
+            max-height: 1200px;
+            opacity: 1;
+        }
+        .advanced-inner {
+            padding-top: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .framework-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .framework-grid label {
+            font-size: 0.62rem;
+            margin-bottom: 0.2rem;
+        }
+        .framework-grid input {
+            width: 100%;
+            padding: 0.4rem 0.5rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .framework-grid input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-glow-blue);
+        }
+        .framework-preset {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .preset-chip {
+            padding: 0.3rem 0.6rem;
+            border-radius: 100px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            border: 1px solid var(--border-medium);
+            background: var(--white);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .preset-chip:hover { background: var(--surface-sunken); }
+        .preset-chip.active {
+            background: var(--navy);
+            color: var(--white);
+            border-color: var(--navy);
+        }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            background: var(--navy);
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.84rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-primary:hover { background: var(--blue-400); }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.06) 100%);
+            pointer-events: none;
         }
+        .btn-primary:hover {
+            background: var(--navy-mid);
+            box-shadow: 0 4px 16px rgba(0, 32, 91, 0.25);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active { transform: translateY(0) scale(0.99); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        .btn-secondary {
-            background: var(--metier-white);
-            color: var(--metier-blue);
-            border: 1.5px solid var(--metier-blue);
-            padding: 0.55rem 1rem;
-            border-radius: 8px;
-            font-family: var(--font-primary);
-            font-size: 0.82rem;
-            font-weight: 600;
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
-        .btn-secondary:hover { background: var(--grey-100); }
+        .btn-ghost:hover {
+            background: var(--surface-sunken);
+            color: var(--text-primary);
+        }
 
-        /* ───────────────────── Spinner ───────────────────── */
+        /* ── Spinner ── */
+        @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2.5px solid var(--metier-beige);
-            border-top-color: var(--metier-white);
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: var(--white);
             border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            animation: spin 0.65s linear infinite;
             display: none;
         }
         .btn-primary.loading .spinner { display: block; }
         .btn-primary.loading .btn-label { display: none; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ───────────────────── Output Panel ───────────────────── */
+        /* ── Analysis Progress Feed ── */
+        .progress-feed {
+            display: none;
+            flex-direction: column;
+            gap: 0;
+        }
+        .progress-feed.visible { display: flex; }
+
+        .progress-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            padding: 0.5rem 0;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: stepIn 0.35s ease forwards;
+        }
+        @keyframes stepIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .step-icon {
+            width: 20px; height: 20px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .step-icon.pending {
+            width: 20px; height: 20px;
+            border: 2px solid var(--border-medium);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .step-icon.done svg { color: var(--risk-green); }
+        .step-text {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .step-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .step-timestamp {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            color: var(--text-tertiary);
+            margin-left: auto;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        /* ── Output ── */
         .output-panel {
             display: flex;
             flex-direction: column;
@@ -235,318 +450,569 @@
 
         .output-placeholder {
             text-align: center;
-            padding: 4rem 2rem;
-            color: var(--blue-300);
-            background: var(--metier-white);
+            padding: 3.5rem 2rem;
+        }
+        .output-placeholder .placeholder-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: var(--surface-sunken);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.1rem;
+        }
+        .output-placeholder .placeholder-icon svg {
+            width: 22px; height: 22px;
+            color: var(--text-tertiary);
+            opacity: 0.5;
         }
         .output-placeholder h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--blue-300);
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
         }
         .output-placeholder p {
-            font-size: 0.88rem;
+            font-size: 0.82rem;
+            color: var(--text-tertiary);
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
-        /* ───────────────────── Risk Matrix ───────────────────── */
+        /* ── Risk Matrix ── */
         .matrix-section { display: none; }
         .matrix-section.visible { display: block; }
 
-        .matrix-container {
-            padding: 1.25rem;
-        }
-
+        .matrix-container { padding: 1.25rem; }
         .risk-matrix-wrapper {
             display: grid;
             grid-template-columns: auto 1fr 1fr 1fr;
-            grid-template-rows: auto auto auto auto;
-            gap: 0;
-            max-width: 520px;
+            gap: 3px;
+            max-width: 500px;
             margin: 0 auto;
         }
-
         .matrix-corner {
             display: flex;
             align-items: flex-end;
             justify-content: flex-end;
-            padding: 0.3rem;
-            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem 0.3rem 0;
+            font-size: 0.58rem;
             font-weight: 600;
-            color: var(--grey-200);
+            color: var(--text-tertiary);
         }
-
         .matrix-col-header {
             text-align: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--metier-blue);
-            padding: 0.5rem 0.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0.4rem 0.25rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
         }
-
         .matrix-row-header {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            padding-right: 0.7rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--metier-blue);
+            padding-right: 0.6rem;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            writing-mode: horizontal-tb;
+            letter-spacing: 0.06em;
         }
-
         .matrix-cell {
-            min-height: 75px;
-            border: 1.5px solid var(--metier-white);
-            border-radius: 6px;
+            min-height: 76px;
+            border-radius: var(--radius-md);
             padding: 0.4rem;
             display: flex;
             flex-wrap: wrap;
-            gap: 0.3rem;
+            gap: 4px;
             align-items: center;
             justify-content: center;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.25s ease, transform 0.15s ease;
+            position: relative;
         }
-        .matrix-cell.green  { background: var(--risk-green-bg); }
-        .matrix-cell.yellow { background: var(--risk-yellow-bg); }
-        .matrix-cell.red    { background: var(--risk-red-bg); }
+        .matrix-cell:hover { transform: scale(1.02); z-index: 2; }
+        .matrix-cell.green { background: var(--risk-green-soft); box-shadow: inset 0 0 0 1px rgba(27, 138, 74, 0.1); }
+        .matrix-cell.green:hover { box-shadow: inset 0 0 0 1px rgba(27, 138, 74, 0.25), 0 2px 12px var(--risk-green-glow); }
+        .matrix-cell.yellow { background: var(--risk-yellow-soft); box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.1); }
+        .matrix-cell.yellow:hover { box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.25), 0 2px 12px var(--risk-yellow-glow); }
+        .matrix-cell.red { background: var(--risk-red-soft); box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.1); }
+        .matrix-cell.red:hover { box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.25), 0 2px 12px var(--risk-red-glow); }
 
         .matrix-label {
-            position: relative;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 600;
-            color: var(--grey-200);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            opacity: 0.6;
+            letter-spacing: 0.08em;
+            opacity: 0.25;
             pointer-events: none;
+            font-family: var(--font-mono);
         }
-
         .risk-chip {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border-radius: 50%;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--metier-white);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--white);
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             z-index: 1;
         }
-        .risk-chip:hover { transform: scale(1.15); }
-        .risk-chip.highlighted {
-            transform: scale(1.25);
-            box-shadow: 0 0 0 3px var(--metier-blue), 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .risk-chip.green  { background: var(--risk-green); }
-        .risk-chip.yellow { background: var(--risk-yellow); }
-        .risk-chip.red    { background: var(--risk-red); }
+        .risk-chip:hover { transform: scale(1.18); z-index: 3; }
+        .risk-chip.highlighted { transform: scale(1.3); z-index: 4; }
+        .risk-chip.green { background: var(--risk-green); box-shadow: 0 2px 6px rgba(27, 138, 74, 0.3); }
+        .risk-chip.green.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(27, 138, 74, 0.4); }
+        .risk-chip.yellow { background: var(--risk-yellow); box-shadow: 0 2px 6px rgba(196, 144, 0, 0.3); }
+        .risk-chip.yellow.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(196, 144, 0, 0.4); }
+        .risk-chip.red { background: var(--risk-red); box-shadow: 0 2px 6px rgba(192, 57, 43, 0.3); }
+        .risk-chip.red.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(192, 57, 43, 0.4); }
 
         .matrix-axis-label {
             text-align: center;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--blue-300);
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-top: 0.5rem;
-        }
-        .matrix-y-label {
-            position: absolute;
-            left: -2rem;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--blue-300);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            white-space: nowrap;
+            letter-spacing: 0.1em;
+            margin-top: 0.6rem;
         }
 
-        /* ───────────────────── Risk Summary Bar ───────────────────── */
+        /* ── Risk Summary ── */
         .risk-summary {
             display: flex;
-            gap: 1rem;
-            padding: 0.85rem 1.25rem;
-            background: var(--metier-beige);
-            border-bottom: 1px solid rgba(0,32,91,0.06);
+            gap: 1.25rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border-subtle);
         }
         .summary-stat {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            font-size: 0.82rem;
+            gap: 0.35rem;
+            font-size: 0.78rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
         .summary-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px; height: 8px;
             border-radius: 50%;
         }
         .summary-dot.red { background: var(--risk-red); }
         .summary-dot.yellow { background: var(--risk-yellow); }
         .summary-dot.green { background: var(--risk-green); }
 
-        /* ───────────────────── Risk Table ───────────────────── */
+        /* ── Risk Table ── */
         .table-section { display: none; }
         .table-section.visible { display: block; }
 
         .table-actions {
             display: flex;
             gap: 0.5rem;
-            padding: 0.85rem 1.25rem;
-            border-bottom: 1px solid var(--grey-100);
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
             flex-wrap: wrap;
         }
-
-        .risk-table-wrapper {
-            overflow-x: auto;
-        }
+        .risk-table-wrapper { overflow-x: auto; }
         .risk-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.84rem;
+            font-size: 0.8rem;
         }
         .risk-table thead th {
-            background: var(--metier-blue);
-            color: var(--metier-white);
-            padding: 0.7rem 0.8rem;
+            background: var(--surface-sunken);
+            color: var(--text-tertiary);
+            padding: 0.6rem 0.75rem;
             text-align: left;
-            font-weight: 600;
-            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: 0.63rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.08em;
             white-space: nowrap;
             position: sticky;
             top: 0;
+            border-bottom: 1px solid var(--border-medium);
         }
         .risk-table tbody tr {
-            border-bottom: 1px solid var(--grey-100);
-            transition: background 0.15s;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s ease;
         }
-        .risk-table tbody tr:hover { background: rgba(0,32,91,0.02); }
-        .risk-table tbody tr.highlighted { background: rgba(0,32,91,0.06); }
-
-        .risk-table tbody td {
-            padding: 0.65rem 0.8rem;
-            vertical-align: top;
-        }
-
+        .risk-table tbody tr:hover { background: rgba(0, 32, 91, 0.02); }
+        .risk-table tbody tr.highlighted { background: rgba(59, 130, 246, 0.06); }
+        .risk-table tbody td { padding: 0.6rem 0.75rem; vertical-align: top; }
         .risk-table .risk-id {
-            font-weight: 700;
+            font-family: var(--font-mono);
+            font-weight: 600;
             text-align: center;
-            width: 40px;
+            width: 38px;
+            color: var(--text-tertiary);
+            font-size: 0.76rem;
         }
         .risk-table .risk-category-cell {
             font-weight: 600;
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             white-space: nowrap;
+            color: var(--text-secondary);
         }
-        .risk-table .risk-desc {
-            min-width: 200px;
-            line-height: 1.5;
-        }
-
+        .risk-table .risk-desc { min-width: 180px; line-height: 1.5; }
         .risk-table select {
-            padding: 0.3rem 0.5rem;
-            border: 1.5px solid var(--grey-100);
-            border-radius: 6px;
-            font-family: var(--font-primary);
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--metier-blue);
-            background: var(--metier-white);
+            padding: 0.3rem 0.45rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.76rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--white);
             cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .risk-table select:focus {
-            outline: none;
-            border-color: var(--blue-200);
-        }
-
+        .risk-table select:focus { outline: none; border-color: var(--accent-blue); box-shadow: var(--shadow-glow-blue); }
         .risk-table input[type="text"] {
-            padding: 0.3rem 0.5rem;
-            border: 1.5px solid var(--grey-100);
-            border-radius: 6px;
-            font-family: var(--font-primary);
-            font-size: 0.82rem;
-            color: var(--metier-blue);
-            width: 120px;
+            padding: 0.3rem 0.45rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            width: 110px;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .risk-table input[type="text"]:focus {
-            outline: none;
-            border-color: var(--blue-200);
-        }
-
+        .risk-table input[type="text"]:focus { outline: none; border-color: var(--accent-blue); box-shadow: var(--shadow-glow-blue); }
         .risk-level-badge {
             display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.72rem;
-            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 3px;
+            font-family: var(--font-mono);
+            font-size: 0.63rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
-        .risk-level-badge.green { background: var(--risk-green-bg); color: var(--risk-green); }
-        .risk-level-badge.yellow { background: var(--risk-yellow-bg); color: var(--risk-yellow); }
-        .risk-level-badge.red { background: var(--risk-red-bg); color: var(--risk-red); }
+        .risk-level-badge.green { background: var(--risk-green-soft); color: var(--risk-green); }
+        .risk-level-badge.yellow { background: var(--risk-yellow-soft); color: var(--risk-yellow); }
+        .risk-level-badge.red { background: var(--risk-red-soft); color: var(--risk-red); }
+        .mitigation-text { font-size: 0.78rem; line-height: 1.5; min-width: 160px; color: var(--text-secondary); }
+        .root-cause-text { margin-top: 0.3rem; font-size: 0.72rem; color: var(--text-tertiary); line-height: 1.45; }
 
-        .mitigation-text {
+        /* ── Treatment Priority ── */
+        .priority-section { display: none; }
+        .priority-section.visible { display: block; }
+
+        .priority-list {
+            padding: 0.5rem 1.25rem 1.25rem;
+        }
+        .priority-item {
+            display: grid;
+            grid-template-columns: 32px 1fr auto;
+            gap: 0.75rem;
+            align-items: start;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .priority-item:last-child { border-bottom: none; }
+        .priority-rank {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+        .priority-rank.critical { background: var(--risk-red); }
+        .priority-rank.important { background: var(--risk-yellow); }
+        .priority-rank.monitor { background: var(--risk-green); }
+        .priority-body { min-width: 0; }
+        .priority-risk-name {
+            font-weight: 600;
             font-size: 0.82rem;
-            line-height: 1.5;
-            min-width: 180px;
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
         }
+        .priority-action {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .priority-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .priority-badge.critical { background: var(--risk-red-soft); color: var(--risk-red); }
+        .priority-badge.important { background: var(--risk-yellow-soft); color: var(--risk-yellow); }
+        .priority-badge.monitor { background: var(--risk-green-soft); color: var(--risk-green); }
 
-        /* ───────────────────── Error Message ───────────────────── */
+        /* ── Error ── */
         .error-message {
             display: none;
-            background: var(--risk-red-bg);
+            background: var(--risk-red-soft);
             color: var(--risk-red);
-            padding: 0.7rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            padding: 0.6rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
             font-weight: 500;
+            border-left: 3px solid var(--risk-red);
         }
         .error-message.visible { display: block; }
 
-        /* ───────────────────── Footer ───────────────────── */
+        /* ── Footer ── */
         .footer {
-            background: var(--metier-blue);
-            color: rgba(255,255,255,0.7);
-            padding: 1.25rem 2rem;
+            background: var(--navy-deep);
+            color: var(--text-on-dark-muted);
+            padding: 1rem 2rem;
             margin-top: 1.5rem;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 1rem;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
         }
         .footer a {
-            color: var(--metier-beige);
-            text-decoration: underline;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .footer a:hover { border-color: rgba(255, 255, 255, 0.6); color: var(--white); }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .input-panel { animation: fadeUp 0.45s ease both 0.1s; }
+        .output-panel > * { animation: fadeUp 0.45s ease both; }
+        .output-panel > *:nth-child(1) { animation-delay: 0.12s; }
+        .output-panel > *:nth-child(2) { animation-delay: 0.2s; }
+        .output-panel > *:nth-child(3) { animation-delay: 0.28s; }
+        .output-panel > *:nth-child(4) { animation-delay: 0.36s; }
+
+        /* ── Divider ── */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: var(--text-tertiary);
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
         }
 
-        /* ───────────────────── Print Styles ───────────────────── */
+        /* ── File Upload ── */
+        .file-upload-area {
+            border: 2px dashed var(--border-medium);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface-raised);
+        }
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.04);
+        }
+        .file-upload-area .upload-icon {
+            color: var(--text-tertiary);
+            margin-bottom: 0.3rem;
+        }
+        .file-upload-area .upload-text {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .file-upload-area .upload-text strong {
+            color: var(--accent-blue);
+            cursor: pointer;
+        }
+        .file-upload-area .upload-hint {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+            margin-top: 0.2rem;
+        }
+        .attached-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.4rem;
+        }
+        .file-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.55rem;
+            background: var(--surface-sunken);
+            border: 1px solid var(--border-medium);
+            border-radius: 100px;
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .file-chip .file-size {
+            color: var(--text-tertiary);
+            font-size: 0.6rem;
+        }
+        .file-chip .file-remove {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: none;
+            background: var(--border-medium);
+            color: var(--text-tertiary);
+            font-size: 0.6rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            line-height: 1;
+            padding: 0;
+        }
+        .file-chip .file-remove:hover { background: var(--risk-red); color: var(--white); }
+        .file-upload-error {
+            font-size: 0.7rem;
+            color: var(--risk-red);
+            margin-top: 0.3rem;
+        }
+
+        /* ── Custom Framework Upload ── */
+        .custom-framework-upload {
+            display: none;
+        }
+        .custom-framework-upload.visible {
+            display: block;
+        }
+
+        /* ── Dimension Tabs ── */
+        .dimension-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--surface-sunken);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            margin-bottom: 0.5rem;
+        }
+        .dimension-tab {
+            flex: 1;
+            padding: 0.35rem 0.5rem;
+            border: none;
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: calc(var(--radius-sm) - 2px);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .dimension-tab:hover { color: var(--text-secondary); }
+        .dimension-tab.active {
+            background: var(--white);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .dimension-panel { display: none; }
+        .dimension-panel.active { display: block; }
+
+        /* ── Tooltips ── */
+        .label-with-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 15px; height: 15px;
+            border-radius: 50%;
+            background: var(--surface-sunken);
+            border: 1px solid var(--border-medium);
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            cursor: help;
+            position: relative;
+            flex-shrink: 0;
+            font-family: var(--font-body);
+            line-height: 1;
+        }
+        .info-icon:hover, .info-icon.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+        .info-icon .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--navy-deep);
+            color: rgba(255,255,255,0.92);
+            font-size: 0.72rem;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            line-height: 1.55;
+            padding: 0.55rem 0.7rem;
+            border-radius: var(--radius-sm);
+            max-width: 260px;
+            min-width: 180px;
+            white-space: normal;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+        .info-icon .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--navy-deep);
+        }
+        .info-icon:hover .tooltip, .info-icon.active .tooltip { display: block; }
+
+        /* ── Print ── */
         @media print {
             body { background: white; }
+            body::before { display: none; }
             .header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-            .input-panel, .table-actions, .api-key-disclaimer { display: none !important; }
-            .footer { background: none; color: var(--grey-200); }
+            .input-panel, .table-actions, .progress-feed { display: none !important; }
+            .footer { background: none; color: var(--text-tertiary); }
             .app-container { grid-template-columns: 1fr; padding: 0; }
-            .card { box-shadow: none; break-inside: avoid; }
-            .risk-table thead th {
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
-            }
-            .matrix-cell, .risk-chip, .risk-level-badge, .summary-dot {
+            .card { box-shadow: none; break-inside: avoid; border-color: #ddd; }
+            .risk-table thead th,
+            .matrix-cell, .risk-chip, .risk-level-badge, .summary-dot, .priority-rank {
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
             }
@@ -555,51 +1021,152 @@
 </head>
 <body>
 
-<!-- ───────────────────── Header ───────────────────── -->
 <header class="header">
-    <div class="header-brand">
-        <h1>Metier</h1>
-        <span class="tagline">A Tetra Tech Company</span>
+    <h1>Metier</h1>
+    <div class="header-right">
+        <div class="header-subtitle" data-i18n="header.subtitle">AI-Powered Project Risk Assessment</div>
+        <div class="lang-toggle">
+            <button class="lang-chip active" data-lang="en" onclick="setLanguage('en')">EN</button>
+            <button class="lang-chip" data-lang="no" onclick="setLanguage('no')">NO</button>
+        </div>
     </div>
-    <span class="header-subtitle">AI-Powered Project Risk Assessment</span>
 </header>
 
-<!-- ───────────────────── Main Content ───────────────────── -->
 <main class="app-container">
 
     <!-- Input Panel -->
     <aside class="input-panel card">
-        <div class="card-header">Project Configuration</div>
+        <div class="card-header-bar">
+            <span class="card-title" data-i18n="input.cardTitle">Project Configuration</span>
+        </div>
         <div class="card-body">
             <div class="field-group">
-                <label for="api-key">Anthropic API Key</label>
-                <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
-                <p class="api-key-disclaimer">Your API key is held in browser memory for this session only and is sent only to Anthropic's API. It is never stored or logged.</p>
-            </div>
-
-            <div class="field-group">
-                <label for="project-category">Project Category</label>
+                <label for="project-category"><span class="label-with-info"><span data-i18n="input.category.label">Category</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="input.category.tooltip">Determines the overall risk appetite. Complex projects get stricter assessment criteria.</span></span></span></label>
                 <select id="project-category">
-                    <option value="Complex">Complex — High financial / high risk</option>
-                    <option value="Regular">Regular — Medium financial / medium risk</option>
-                    <option value="Simple">Simple — Low financial / low risk</option>
+                    <option value="Complex" data-i18n="input.category.complex">Complex — High financial / high risk</option>
+                    <option value="Regular" data-i18n="input.category.regular">Regular — Medium financial / medium risk</option>
+                    <option value="Simple" data-i18n="input.category.simple">Simple — Low financial / low risk</option>
                 </select>
             </div>
 
             <div class="field-group">
-                <label for="project-context">Project Description</label>
-                <textarea id="project-context" placeholder="Describe the project, contract terms, team, timeline, scope of work..."></textarea>
-                <p class="hint">The more detail you provide, the more specific the risk assessment will be.</p>
+                <label for="project-context" data-i18n="input.description.label">Project Description</label>
+                <textarea id="project-context" data-i18n-placeholder="input.description.placeholder" placeholder="Describe the project scope, contract terms, team composition, timeline, key deliverables..."></textarea>
+                <p class="hint" data-i18n="input.description.hint">Be specific — the more context, the more tailored the assessment.</p>
+                <div class="file-upload-area" id="project-file-upload"
+                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+                     ondrop="handleFileDrop(event, 'project')" onclick="document.getElementById('project-file-input').click()">
+                    <input type="file" id="project-file-input" multiple accept=".txt,.md,.csv,.json,.xml,.log,.rtf" style="display:none" onchange="handleFileSelect(event, 'project')">
+                    <div class="upload-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </div>
+                    <div class="upload-text" data-i18n-html="input.upload.dropText">Drop files here or <strong>browse</strong></div>
+                    <div class="upload-hint" data-i18n="input.upload.hint">TXT, MD, CSV, JSON, XML, LOG, RTF — max 50K characters total</div>
+                </div>
+                <div class="attached-files" id="project-attached-files"></div>
+                <div class="file-upload-error" id="project-file-error" style="display:none"></div>
+            </div>
+
+            <div class="field-group">
+                <label for="risk-count"><span class="label-with-info"><span data-i18n="input.riskCount.label">Number of Risks</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="input.riskCount.tooltip">How many distinct risks the AI should identify. More risks give broader coverage; fewer give deeper analysis per risk.</span></span></span></label>
+                <select id="risk-count">
+                    <option value="5">5</option>
+                    <option value="8">8</option>
+                    <option value="10" selected>10</option>
+                    <option value="12">12</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+
+            <!-- Advanced: Custom Risk Framework -->
+            <button class="advanced-toggle" id="adv-toggle" onclick="toggleAdvanced()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <span data-i18n="advanced.toggle">Risk Framework Settings</span>
+            </button>
+            <div class="advanced-section" id="adv-section">
+                <div class="advanced-inner">
+                    <div>
+                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.preset.label">Framework Preset</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.preset.tooltip">Pre-configured threshold definitions and categories from industry-standard risk frameworks.</span></span></span></label>
+                        <div class="framework-preset" id="framework-presets">
+                            <button class="preset-chip active" data-preset="dnv" onclick="setPreset('dnv')" data-i18n-title="presets.dnv.title" title="DNV Energy Systems framework with NOK-based financial thresholds">DNV ES</button>
+                            <button class="preset-chip" data-preset="iso" onclick="setPreset('iso')" data-i18n-title="presets.iso.title" title="ISO 31000:2018 generic risk management standard with qualitative thresholds">ISO 31000</button>
+                            <button class="preset-chip" data-preset="pmi" onclick="setPreset('pmi')" data-i18n-title="presets.pmi.title" title="PMI PMBOK risk framework with budget/schedule impact thresholds">PMI / PMBOK</button>
+                            <button class="preset-chip" data-preset="custom" onclick="setPreset('custom')" data-i18n-title="presets.custom.title" title="Define your own thresholds and categories, optionally upload a framework document">Custom</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.consequence.label">Consequence Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.consequence.tooltip">Define what High, Medium, and Low consequence mean for this project across cost, time, and quality dimensions.</span></span></span></label>
+                        <div class="dimension-tabs" id="dimension-tabs">
+                            <button class="dimension-tab active" data-dim="cost" onclick="switchDimension('cost')" data-i18n="advanced.dimensions.cost">Cost</button>
+                            <button class="dimension-tab" data-dim="time" onclick="switchDimension('time')" data-i18n="advanced.dimensions.time">Time</button>
+                            <button class="dimension-tab" data-dim="quality" onclick="switchDimension('quality')" data-i18n="advanced.dimensions.quality">Quality</button>
+                        </div>
+                        <div class="dimension-panel active" id="dim-cost">
+                            <div class="framework-grid">
+                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-cost-high" type="text" value="> 500K NOK"></div>
+                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-cost-med" type="text" value="50K–500K NOK"></div>
+                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-cost-low" type="text" value="< 50K NOK"></div>
+                            </div>
+                        </div>
+                        <div class="dimension-panel" id="dim-time">
+                            <div class="framework-grid">
+                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-time-high" type="text" value="> 2 months delay"></div>
+                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-time-med" type="text" value="2–4 weeks delay"></div>
+                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-time-low" type="text" value="< 2 weeks delay"></div>
+                            </div>
+                        </div>
+                        <div class="dimension-panel" id="dim-quality">
+                            <div class="framework-grid">
+                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-quality-high" type="text" value="Major quality failure, rework required"></div>
+                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-quality-med" type="text" value="Noticeable quality reduction"></div>
+                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-quality-low" type="text" value="Minor quality deviation"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.likelihood.label">Likelihood Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.likelihood.tooltip">Define the probability thresholds for High, Medium, and Low likelihood of a risk event occurring.</span></span></span></label>
+                        <div class="framework-grid">
+                            <div><label data-i18n="levels.high">High</label><input id="fw-like-high" type="text" value="> 70%"></div>
+                            <div><label data-i18n="levels.medium">Medium</label><input id="fw-like-med" type="text" value="30%–70%"></div>
+                            <div><label data-i18n="levels.low">Low</label><input id="fw-like-low" type="text" value="< 30%"></div>
+                        </div>
+                    </div>
+                    <div class="field-group" style="margin:0;">
+                        <label for="fw-categories"><span class="label-with-info"><span data-i18n="advanced.categories.label">Risk Categories</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.categories.tooltip">The AI will categorise each identified risk under one of these categories. Edit to match your project's taxonomy.</span></span></span> <span style="font-weight:400;text-transform:none;letter-spacing:0;" data-i18n="advanced.categories.hint">(comma-separated)</span></label>
+                        <input type="text" id="fw-categories" value="Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder" style="font-size:0.76rem;">
+                    </div>
+                    <div class="custom-framework-upload" id="custom-framework-section">
+                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;" data-i18n="advanced.customFramework.label">Custom Framework Document</label>
+                        <div class="file-upload-area" id="framework-file-upload"
+                             ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
+                             ondrop="handleFileDrop(event, 'framework')" onclick="document.getElementById('framework-file-input').click()">
+                            <input type="file" id="framework-file-input" accept=".txt,.md,.csv,.json,.xml,.log,.rtf" style="display:none" onchange="handleFileSelect(event, 'framework')">
+                            <div class="upload-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            </div>
+                            <div class="upload-text" data-i18n="advanced.customFramework.uploadText">Upload your framework document</div>
+                            <div class="upload-hint" data-i18n="advanced.customFramework.hint">This will be injected as additional context for the AI</div>
+                        </div>
+                        <div class="attached-files" id="framework-attached-files"></div>
+                        <div class="file-upload-error" id="framework-file-error" style="display:none"></div>
+                    </div>
+                </div>
             </div>
 
             <button class="btn-primary" id="generate-btn" onclick="generateRiskAssessment()">
-                <span class="btn-label">Generate Risk Assessment</span>
+                <span class="btn-label" data-i18n="input.generate">Generate Risk Assessment</span>
                 <div class="spinner"></div>
             </button>
 
             <div class="error-message" id="error-msg"></div>
 
-            <button class="btn-secondary" id="load-example-btn" onclick="loadExample()" style="align-self: center;">
+            <!-- Analysis Progress -->
+            <div class="progress-feed" id="progress-feed"></div>
+
+            <div class="section-divider" data-i18n="input.or">or</div>
+
+            <button class="btn-ghost" id="load-example-btn" onclick="loadExample()" style="align-self: center;" data-i18n="input.loadExample">
                 Load Example Project
             </button>
         </div>
@@ -607,162 +1174,271 @@
 
     <!-- Output Panel -->
     <section class="output-panel">
-        <!-- Placeholder -->
         <div class="card output-placeholder" id="placeholder">
             <div class="card-body">
-                <h3>No Risk Assessment Generated Yet</h3>
-                <p>Enter your project details and click "Generate Risk Assessment" to produce<br>an AI-powered risk register following the DNV ES framework.</p>
+                <div class="placeholder-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <h3 data-i18n="output.placeholder.title">Ready to Assess Risk</h3>
+                <p data-i18n="output.placeholder.description">Configure your project and generate an AI-powered risk register following ISO 31000 and your chosen risk framework.</p>
             </div>
         </div>
 
-        <!-- Risk Matrix Card -->
+        <!-- Risk Matrix -->
         <div class="card matrix-section" id="matrix-section">
-            <div class="card-header">Risk Matrix — Likelihood vs. Consequence</div>
+            <div class="card-header-bar">
+                <span class="card-title-main" data-i18n="output.matrix.title">Risk Matrix</span>
+                <span class="card-title" data-i18n="output.matrix.subtitle">Likelihood vs. Consequence</span>
+            </div>
             <div class="risk-summary" id="risk-summary"></div>
             <div class="matrix-container">
                 <div class="risk-matrix-wrapper" id="risk-matrix">
-                    <!-- Corner -->
-                    <div class="matrix-corner">
-                        <span style="font-size:0.65rem;">LIKELIHOOD /<br>CONSEQUENCE</span>
-                    </div>
-                    <!-- Column headers -->
-                    <div class="matrix-col-header">Low</div>
-                    <div class="matrix-col-header">Medium</div>
-                    <div class="matrix-col-header">High</div>
-
-                    <!-- Row: High likelihood -->
-                    <div class="matrix-row-header">High</div>
+                    <div class="matrix-corner"><span data-i18n-html="matrixCorner">LIKELIHOOD /<br>CONSEQUENCE</span></div>
+                    <div class="matrix-col-header" data-i18n="levels.low">Low</div>
+                    <div class="matrix-col-header" data-i18n="levels.medium">Medium</div>
+                    <div class="matrix-col-header" data-i18n="levels.high">High</div>
+                    <div class="matrix-row-header" data-i18n="levels.high">High</div>
                     <div class="matrix-cell yellow" id="cell-high-low"></div>
                     <div class="matrix-cell red" id="cell-high-medium"></div>
                     <div class="matrix-cell red" id="cell-high-high"></div>
-
-                    <!-- Row: Medium likelihood -->
-                    <div class="matrix-row-header">Medium</div>
+                    <div class="matrix-row-header" data-i18n="levels.medium">Medium</div>
                     <div class="matrix-cell green" id="cell-medium-low"></div>
                     <div class="matrix-cell yellow" id="cell-medium-medium"></div>
                     <div class="matrix-cell red" id="cell-medium-high"></div>
-
-                    <!-- Row: Low likelihood -->
-                    <div class="matrix-row-header">Low</div>
+                    <div class="matrix-row-header" data-i18n="levels.low">Low</div>
                     <div class="matrix-cell green" id="cell-low-low"></div>
                     <div class="matrix-cell green" id="cell-low-medium"></div>
                     <div class="matrix-cell yellow" id="cell-low-high"></div>
                 </div>
-                <div class="matrix-axis-label">Consequence</div>
+                <div class="matrix-axis-label" data-i18n="output.matrix.axis">Consequence</div>
             </div>
         </div>
 
-        <!-- Risk Register Table Card -->
+        <!-- Treatment Priority -->
+        <div class="card priority-section" id="priority-section">
+            <div class="card-header-bar">
+                <span class="card-title-main" data-i18n="output.priority.title">Treatment Priority</span>
+                <span class="card-title" data-i18n="output.priority.subtitle">ISO 31000 Risk Treatment Plan</span>
+            </div>
+            <div class="priority-list" id="priority-list"></div>
+        </div>
+
+        <!-- Risk Register Table -->
         <div class="card table-section" id="table-section">
-            <div class="card-header">Risk Register</div>
+            <div class="card-header-bar">
+                <span class="card-title-main" data-i18n="output.register.title">Risk Register</span>
+            </div>
             <div class="table-actions">
-                <button class="btn-secondary" onclick="exportCSV()">Export to CSV</button>
-                <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
+                <button class="btn-ghost" onclick="exportCSV()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span data-i18n="output.exportCsv">Export CSV</span>
+                </button>
+                <button class="btn-ghost" onclick="window.print()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span data-i18n="output.print">Print / PDF</span>
+                </button>
             </div>
             <div class="risk-table-wrapper">
                 <table class="risk-table" id="risk-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Description</th>
-                            <th>Likelihood</th>
-                            <th>Consequence</th>
-                            <th>Risk Level</th>
-                            <th>Mitigating Action</th>
-                            <th>Responsible</th>
+                            <th data-i18n="table.id">#</th><th data-i18n="table.category">Category</th><th data-i18n="table.description">Description</th>
+                            <th data-i18n="table.likelihood">Likelihood</th><th data-i18n="table.consequence">Consequence</th><th data-i18n="table.riskLevel">Risk Level</th>
+                            <th data-i18n="table.mitigation">Mitigating Action</th><th data-i18n="table.responsible">Responsible</th>
                         </tr>
                     </thead>
                     <tbody id="risk-table-body"></tbody>
                 </table>
             </div>
         </div>
-
     </section>
 </main>
 
-<!-- ───────────────────── Footer ───────────────────── -->
 <footer class="footer">
-    <div>Methodology: <a href="https://www.iso.org/obp/ui/#iso:std:iso:31000:ed-2:v1:en" target="_blank" rel="noopener">ISO 31000:2018</a> &amp; <a href="https://www.iso.org/standard/72140.html" target="_blank" rel="noopener">IEC 31010:2019</a> · DNV ES Risk Framework</div>
-    <div>Built by Metier — A Tetra Tech Company</div>
+    <div data-i18n-html="footer.methodology">Methodology: <a href="https://www.iso.org/obp/ui/#iso:std:iso:31000:ed-2:v1:en" target="_blank" rel="noopener">ISO 31000:2018</a> &amp; <a href="https://www.iso.org/standard/72140.html" target="_blank" rel="noopener">IEC 31010:2019</a></div>
+    <div data-i18n="footer.builtBy">Built by Metier OEC</div>
 </footer>
 
-<!-- ───────────────────── JavaScript ───────────────────── -->
 <script>
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    State
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 let risks = [];
 let highlightedRiskId = null;
+let activePreset = 'dnv';
+let projectAttachedFiles = [];
+let customFrameworkFile = null;
+let currentLang = localStorage.getItem('lang') || 'en';
+const API_KEY = localStorage.getItem('anthropic_api_key') || prompt('Enter your Anthropic API key:') || '';
+if (API_KEY && !localStorage.getItem('anthropic_api_key')) localStorage.setItem('anthropic_api_key', API_KEY);
 
-/* ═════════════════════════════════════════════════════════
-   DNV Risk Matrix Logic
-   ═════════════════════════════════════════════════════════ */
-const RISK_MATRIX = {
-    'High-High': 'RED', 'High-Medium': 'RED', 'High-Low': 'YELLOW',
-    'Medium-High': 'RED', 'Medium-Medium': 'YELLOW', 'Medium-Low': 'GREEN',
-    'Low-High': 'YELLOW', 'Low-Medium': 'GREEN', 'Low-Low': 'GREEN'
-};
-
-function calcRiskLevel(likelihood, consequence) {
-    return RISK_MATRIX[`${likelihood}-${consequence}`] || 'GREEN';
-}
-
-/* ═════════════════════════════════════════════════════════
-   Example Project (from project-context.md)
-   ═════════════════════════════════════════════════════════ */
-const EXAMPLE_PROJECT = `A client currently undertakes audits of their high-pressure pipelines to assess their compliance with a named standard and to identify any infringements. To demonstrate compliance, all infringements are assessed to determine the tolerability of the associated risk.
-
-Contract & Client:
-- Fixed price: 600,000 Euros
-- Client status: Gold customer
-- Client's contractual T&Cs with high liability and fines for late deliveries
-
-Project Tasks:
-1. Screen against previous results from locations
-2. Perform a site-specific risk assessment for the remaining two locations (in France and Algeria)
-
-Timeline:
-- Starts first day of next month, duration 5 months
-- All final deliverables/reports must be submitted by end of 5 months
-
-Team & Resources:
-- 5 team members from different countries
-- Only 2 resources with required high-pressure competence in Energy Systems
-- Project Sponsor secured commitment from line manager of one specialist
-- Resources from Malaysia and Australia
-- Work involves sub-contractor expertise outside DNV ES
-- London office responsible but has never worked for this client (client is known to DNV Energy Systems overall)`;
-
-function loadExample() {
-    document.getElementById('project-category').value = 'Complex';
-    document.getElementById('project-context').value = EXAMPLE_PROJECT;
-}
-
-/* ═════════════════════════════════════════════════════════
-   Prompt Construction
-   ═════════════════════════════════════════════════════════ */
-function buildSystemPrompt() {
-    return `You are a senior risk management consultant specialising in energy infrastructure, industrial projects, and project management. You follow ISO 31000:2018 (Risk Management — Guidelines) and IEC 31010:2019 (Risk Assessment Techniques) methodologies rigorously. You work for DNV Energy Systems.
+/* ═══════════════════════════════════════════════════
+   i18n — Language Dictionary
+   ═══════════════════════════════════════════════════ */
+const LANG = {
+  en: {
+    header: { subtitle: 'AI-Powered Project Risk Assessment' },
+    input: {
+      cardTitle: 'Project Configuration',
+      category: {
+        label: 'Category',
+        tooltip: 'Determines the overall risk appetite. Complex projects get stricter assessment criteria.',
+        complex: 'Complex — High financial / high risk',
+        regular: 'Regular — Medium financial / medium risk',
+        simple: 'Simple — Low financial / low risk'
+      },
+      description: {
+        label: 'Project Description',
+        placeholder: 'Describe the project scope, contract terms, team composition, timeline, key deliverables...',
+        hint: 'Be specific — the more context, the more tailored the assessment.'
+      },
+      riskCount: {
+        label: 'Number of Risks',
+        tooltip: 'How many distinct risks the AI should identify. More risks give broader coverage; fewer give deeper analysis per risk.'
+      },
+      upload: {
+        dropText: 'Drop files here or <strong>browse</strong>',
+        hint: 'TXT, MD, CSV, JSON, XML, LOG, RTF — max 50K characters total',
+        unsupported: 'is not supported. Use TXT, MD, CSV, JSON, XML, LOG, or RTF. For PDF/DOC files, paste the content into the description field.',
+        charLimit: 'would exceed the 50K character limit. Remove some files first.'
+      },
+      generate: 'Generate Risk Assessment',
+      or: 'or',
+      loadExample: 'Load Example Project'
+    },
+    advanced: {
+      toggle: 'Risk Framework Settings',
+      preset: {
+        label: 'Framework Preset',
+        tooltip: 'Pre-configured threshold definitions and categories from industry-standard risk frameworks.'
+      },
+      consequence: {
+        label: 'Consequence Thresholds',
+        tooltip: 'Define what High, Medium, and Low consequence mean for this project across cost, time, and quality dimensions.'
+      },
+      dimensions: { cost: 'Cost', time: 'Time', quality: 'Quality' },
+      likelihood: {
+        label: 'Likelihood Thresholds',
+        tooltip: 'Define the probability thresholds for High, Medium, and Low likelihood of a risk event occurring.'
+      },
+      categories: {
+        label: 'Risk Categories',
+        tooltip: 'The AI will categorise each identified risk under one of these categories. Edit to match your project\'s taxonomy.',
+        hint: '(comma-separated)'
+      },
+      customFramework: {
+        label: 'Custom Framework Document',
+        uploadText: 'Upload your framework document',
+        hint: 'This will be injected as additional context for the AI'
+      }
+    },
+    presets: {
+      dnv: { title: 'DNV Energy Systems framework with NOK-based financial thresholds' },
+      iso: { title: 'ISO 31000:2018 generic risk management standard with qualitative thresholds' },
+      pmi: { title: 'PMI PMBOK risk framework with budget/schedule impact thresholds' },
+      custom: { title: 'Define your own thresholds and categories, optionally upload a framework document' }
+    },
+    presetValues: {
+      dnv: {
+        consCostHigh: '> 500K NOK', consCostMed: '50K–500K NOK', consCostLow: '< 50K NOK',
+        consTimeHigh: '> 2 months delay', consTimeMed: '2–4 weeks delay', consTimeLow: '< 2 weeks delay',
+        consQualityHigh: 'Major quality failure, rework required', consQualityMed: 'Noticeable quality reduction', consQualityLow: 'Minor quality deviation',
+        likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
+        categories: 'Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder'
+      },
+      iso: {
+        consCostHigh: 'Severe financial impact', consCostMed: 'Moderate financial impact', consCostLow: 'Minor financial impact',
+        consTimeHigh: 'Critical schedule overrun', consTimeMed: 'Moderate schedule delay', consTimeLow: 'Minor schedule slip',
+        consQualityHigh: 'Severe impact on objectives', consQualityMed: 'Moderate impact on objectives', consQualityLow: 'Minor impact on objectives',
+        likeHigh: 'Expected to occur', likeMed: 'Could occur', likeLow: 'Unlikely to occur',
+        categories: 'Strategic, Operational, Financial, Compliance, Reputational, Technical, External, Health & Safety'
+      },
+      pmi: {
+        consCostHigh: '> 10% budget impact', consCostMed: '5–10% budget impact', consCostLow: '< 5% budget impact',
+        consTimeHigh: '> 2 months schedule slip', consTimeMed: '1–2 months slip', consTimeLow: '< 1 month slip',
+        consQualityHigh: 'Major deliverable deficiency', consQualityMed: 'Quality degradation in some areas', consQualityLow: 'Barely noticeable quality reduction',
+        likeHigh: '> 70% probability', likeMed: '30–70% probability', likeLow: '< 30% probability',
+        categories: 'Scope, Schedule, Cost, Quality, Resource, Communication, Risk, Procurement, Stakeholder'
+      }
+    },
+    output: {
+      placeholder: {
+        title: 'Ready to Assess Risk',
+        description: 'Configure your project and generate an AI-powered risk register following ISO 31000 and your chosen risk framework.'
+      },
+      matrix: { title: 'Risk Matrix', subtitle: 'Likelihood vs. Consequence', axis: 'Consequence' },
+      priority: { title: 'Treatment Priority', subtitle: 'ISO 31000 Risk Treatment Plan' },
+      register: { title: 'Risk Register' },
+      exportCsv: 'Export CSV',
+      print: 'Print / PDF'
+    },
+    table: {
+      id: '#', category: 'Category', description: 'Description', likelihood: 'Likelihood',
+      consequence: 'Consequence', riskLevel: 'Risk Level', mitigation: 'Mitigating Action',
+      responsible: 'Responsible'
+    },
+    levels: { high: 'High', medium: 'Medium', low: 'Low' },
+    riskLevels: { RED: 'RED', YELLOW: 'YELLOW', GREEN: 'GREEN' },
+    summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified' },
+    priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor' },
+    progress: [
+      { text: '<strong>Initializing</strong> — Loading risk assessment framework', delay: 0 },
+      { text: '<strong>Context Analysis</strong> — Parsing project scope, contract terms, and constraints', delay: 800 },
+      { text: '<strong>Framework Alignment</strong> — Mapping to {FRAMEWORK} risk matrix definitions', delay: 2200 },
+      { text: '<strong>Risk Identification</strong> — Scanning for threats across {CATEGORIES} categories', delay: 3800 },
+      { text: '<strong>Likelihood Assessment</strong> — Evaluating probability based on project parameters', delay: 5800 },
+      { text: '<strong>Consequence Assessment</strong> — Scoring impact against threshold definitions', delay: 7500 },
+      { text: '<strong>Mitigation Planning</strong> — Generating actionable treatment strategies', delay: 9500 },
+      { text: '<strong>Compiling Results</strong> — Building risk register and priority ranking', delay: 11500 }
+    ],
+    progressComplete: '<strong>Complete</strong> — Risk assessment generated successfully',
+    errors: {
+      noDescription: 'Please provide a project description.',
+      invalidJson: 'The AI response was not valid JSON. Please try again.',
+      noRisks: 'No risks were generated. Please try again with more detail.',
+      invalidKey: 'Invalid API key.',
+      rateLimit: 'Rate limit exceeded. Please wait a moment.',
+      apiError: 'API error',
+      emptyResponse: 'Empty response from the API.'
+    },
+    rootCause: 'Root cause:',
+    removeFile: 'Remove file',
+    csv: { headers: ['ID','Category','Description','Likelihood','Consequence','Risk Level','Root Cause','Mitigating Action','Responsible'] },
+    matrixCorner: 'LIKELIHOOD /<br>CONSEQUENCE',
+    systemPrompt: `You are a senior risk management consultant specialising in energy infrastructure, industrial projects, and project management. You follow ISO 31000:2018 (Risk Management — Guidelines) and IEC 31010:2019 (Risk Assessment Techniques) methodologies rigorously. You are applying the {frameworkName} risk framework.
 
 Your task is to produce a comprehensive project risk register. You must:
-1. Identify 8-12 distinct, project-specific risks (threats only — not opportunities).
-2. Categorise each risk under one of these categories: Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder.
-3. For each risk, assess Likelihood and Consequence using DNV's 3-level scale.
+1. Identify exactly {riskCount} distinct, project-specific risks (threats only — not opportunities).
+2. Categorise each risk under one of these categories: {categories}.
+3. For each risk, assess Likelihood and Consequence using the 3-level scale defined below.
 4. Provide a clear root cause and actionable mitigating actions.
 5. Be specific to the project described — avoid generic boilerplate risks.
 
-DNV Risk Matrix Definitions:
+Risk Matrix Definitions ({frameworkName}):
 
-CONSEQUENCE:
-- High: Cost impact > 500K NOK, OR more than one month delay on finish date, OR major faults requiring shutdown causing unacceptable delays.
-- Medium: Cost impact 50K–500K NOK, OR delay on major milestones but no impact on finish date, OR faults with minor impact on system performance.
-- Low: Cost impact < 50K NOK, OR delay in individual activities without milestone impact, OR minor faults without effect on performance.
+CONSEQUENCE (use worst-case across all three dimensions):
+
+Cost:
+- High: {consCostHigh}
+- Medium: {consCostMed}
+- Low: {consCostLow}
+
+Time:
+- High: {consTimeHigh}
+- Medium: {consTimeMed}
+- Low: {consTimeLow}
+
+Quality:
+- High: {consQualityHigh}
+- Medium: {consQualityMed}
+- Low: {consQualityLow}
 
 LIKELIHOOD:
-- High: > 70% probability
-- Medium: 30%–70% probability
-- Low: < 30% probability
+- High: {likeHigh}
+- Medium: {likeMed}
+- Low: {likeLow}
 
 RISK LEVEL MATRIX (Likelihood x Consequence):
          |  Low Consequence  |  Medium Consequence  |  High Consequence
@@ -783,21 +1459,502 @@ Output ONLY valid JSON — no markdown fences, no commentary. Use this exact str
       "mitigation": "..."
     }
   ]
-}`;
+}`,
+    userPromptSuffix: 'Based on the above project details, generate a comprehensive risk register with exactly {count} specific risks. Remember: output valid JSON only.',
+    exampleProject: `A client currently undertakes audits of their high-pressure pipelines to assess their compliance with a named standard and to identify any infringements. To demonstrate compliance, all infringements are assessed to determine the tolerability of the associated risk.
+
+Contract & Client:
+- Fixed price: 600,000 Euros
+- Client status: Gold customer
+- Client's contractual T&Cs with high liability and fines for late deliveries
+
+Project Tasks:
+1. Screen against previous results from locations
+2. Perform a site-specific risk assessment for the remaining two locations (in France and Algeria)
+
+Timeline:
+- Starts first day of next month, duration 5 months
+- All final deliverables/reports must be submitted by end of 5 months
+
+Team & Resources:
+- 5 team members from different countries
+- Only 2 resources with required high-pressure competence in Energy Systems
+- Project Sponsor secured commitment from line manager of one specialist
+- Resources from Malaysia and Australia
+- Work involves sub-contractor expertise outside DNV ES
+- London office responsible but has never worked for this client (client is known to DNV Energy Systems overall)`,
+    footer: {
+      methodology: 'Methodology: <a href="https://www.iso.org/obp/ui/#iso:std:iso:31000:ed-2:v1:en" target="_blank" rel="noopener">ISO 31000:2018</a> &amp; <a href="https://www.iso.org/standard/72140.html" target="_blank" rel="noopener">IEC 31010:2019</a>',
+      builtBy: 'Built by Metier OEC'
+    }
+  },
+  no: {
+    header: { subtitle: 'AI-drevet prosjektrisikovurdering' },
+    input: {
+      cardTitle: 'Prosjektkonfigurasjon',
+      category: {
+        label: 'Kategori',
+        tooltip: 'Bestemmer den overordnede risikoappetitt. Komplekse prosjekter får strengere vurderingskriterier.',
+        complex: 'Kompleks — Høy finansiell / høy risiko',
+        regular: 'Ordinær — Middels finansiell / middels risiko',
+        simple: 'Enkel — Lav finansiell / lav risiko'
+      },
+      description: {
+        label: 'Prosjektbeskrivelse',
+        placeholder: 'Beskriv prosjektomfang, kontraktsvilkår, teamsammensetning, tidsplan, viktige leveranser...',
+        hint: 'Vær spesifikk — jo mer kontekst, desto mer skreddersydd vurdering.'
+      },
+      riskCount: {
+        label: 'Antall risikoer',
+        tooltip: 'Hvor mange distinkte risikoer AI-en skal identifisere. Flere risikoer gir bredere dekning; færre gir dypere analyse per risiko.'
+      },
+      upload: {
+        dropText: 'Slipp filer her eller <strong>bla gjennom</strong>',
+        hint: 'TXT, MD, CSV, JSON, XML, LOG, RTF — maks 50K tegn totalt',
+        unsupported: 'støttes ikke. Bruk TXT, MD, CSV, JSON, XML, LOG eller RTF. For PDF/DOC-filer, lim inn innholdet i beskrivelsesfeltet.',
+        charLimit: 'vil overskride grensen på 50K tegn. Fjern noen filer først.'
+      },
+      generate: 'Generer risikovurdering',
+      or: 'eller',
+      loadExample: 'Last inn eksempelprosjekt'
+    },
+    advanced: {
+      toggle: 'Risikorammeverk-innstillinger',
+      preset: {
+        label: 'Rammeverk-forhåndsinnstilling',
+        tooltip: 'Forhåndskonfigurerte terskeldefinisjoner og kategorier fra industristandardiserte risikorammeverk.'
+      },
+      consequence: {
+        label: 'Konsekvensterskler',
+        tooltip: 'Definer hva Høy, Middels og Lav konsekvens betyr for dette prosjektet på tvers av kostnad, tid og kvalitet.'
+      },
+      dimensions: { cost: 'Kostnad', time: 'Tid', quality: 'Kvalitet' },
+      likelihood: {
+        label: 'Sannsynlighetsterskler',
+        tooltip: 'Definer sannsynlighetersklene for Høy, Middels og Lav sannsynlighet for at en risikohendelse inntreffer.'
+      },
+      categories: {
+        label: 'Risikokategorier',
+        tooltip: 'AI-en vil kategorisere hver identifiserte risiko under en av disse kategoriene. Rediger for å matche prosjektets taksonomi.',
+        hint: '(kommaseparert)'
+      },
+      customFramework: {
+        label: 'Egendefinert rammeverksdokument',
+        uploadText: 'Last opp ditt rammeverksdokument',
+        hint: 'Dette vil bli lagt til som ekstra kontekst for AI-en'
+      }
+    },
+    presets: {
+      dnv: { title: 'DNV Energy Systems-rammeverk med NOK-baserte finansielle terskler' },
+      iso: { title: 'ISO 31000:2018 generisk risikostyringsstandard med kvalitative terskler' },
+      pmi: { title: 'PMI PMBOK-risikorammeverk med budsjett-/tidsplanterskler' },
+      custom: { title: 'Definer egne terskler og kategorier, eventuelt last opp et rammeverksdokument' }
+    },
+    presetValues: {
+      dnv: {
+        consCostHigh: '> 500K NOK', consCostMed: '50K–500K NOK', consCostLow: '< 50K NOK',
+        consTimeHigh: '> 2 måneders forsinkelse', consTimeMed: '2–4 ukers forsinkelse', consTimeLow: '< 2 ukers forsinkelse',
+        consQualityHigh: 'Alvorlig kvalitetssvikt, omarbeid nødvendig', consQualityMed: 'Merkbar kvalitetsreduksjon', consQualityLow: 'Mindre kvalitetsavvik',
+        likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
+        categories: 'Omfang, Tidsplan, Ressurs, Finansiell, Teknisk, Kontraktuell, Ekstern, HMS, Kvalitet, Interessent'
+      },
+      iso: {
+        consCostHigh: 'Alvorlig finansiell konsekvens', consCostMed: 'Moderat finansiell konsekvens', consCostLow: 'Mindre finansiell konsekvens',
+        consTimeHigh: 'Kritisk tidsplanoverskriding', consTimeMed: 'Moderat tidsplanforsinkelse', consTimeLow: 'Mindre tidsplanavvik',
+        consQualityHigh: 'Alvorlig innvirkning på målsetninger', consQualityMed: 'Moderat innvirkning på målsetninger', consQualityLow: 'Mindre innvirkning på målsetninger',
+        likeHigh: 'Forventet å inntreffe', likeMed: 'Kan inntreffe', likeLow: 'Lite sannsynlig',
+        categories: 'Strategisk, Operasjonell, Finansiell, Samsvar, Omdømme, Teknisk, Ekstern, HMS'
+      },
+      pmi: {
+        consCostHigh: '> 10% budsjettinnvirkning', consCostMed: '5–10% budsjettinnvirkning', consCostLow: '< 5% budsjettinnvirkning',
+        consTimeHigh: '> 2 måneders tidsplanavvik', consTimeMed: '1–2 måneders avvik', consTimeLow: '< 1 måneds avvik',
+        consQualityHigh: 'Alvorlig leveransemangel', consQualityMed: 'Kvalitetsforringelse på noen områder', consQualityLow: 'Knapt merkbar kvalitetsreduksjon',
+        likeHigh: '> 70% sannsynlighet', likeMed: '30–70% sannsynlighet', likeLow: '< 30% sannsynlighet',
+        categories: 'Omfang, Tidsplan, Kostnad, Kvalitet, Ressurs, Kommunikasjon, Risiko, Anskaffelse, Interessent'
+      }
+    },
+    output: {
+      placeholder: {
+        title: 'Klar for risikovurdering',
+        description: 'Konfigurer prosjektet ditt og generer et AI-drevet risikoregister basert på ISO 31000 og ditt valgte risikorammeverk.'
+      },
+      matrix: { title: 'Risikomatrise', subtitle: 'Sannsynlighet vs. konsekvens', axis: 'Konsekvens' },
+      priority: { title: 'Behandlingsprioritet', subtitle: 'ISO 31000 risikobehandlingsplan' },
+      register: { title: 'Risikoregister' },
+      exportCsv: 'Eksporter CSV',
+      print: 'Skriv ut / PDF'
+    },
+    table: {
+      id: '#', category: 'Kategori', description: 'Beskrivelse', likelihood: 'Sannsynlighet',
+      consequence: 'Konsekvens', riskLevel: 'Risikonivå', mitigation: 'Tiltak',
+      responsible: 'Ansvarlig'
+    },
+    levels: { high: 'Høy', medium: 'Middels', low: 'Lav' },
+    riskLevels: { RED: 'RØD', YELLOW: 'GUL', GREEN: 'GRØNN' },
+    summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert' },
+    priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk' },
+    progress: [
+      { text: '<strong>Initialiserer</strong> — Laster risikovurderingsrammeverk', delay: 0 },
+      { text: '<strong>Kontekstanalyse</strong> — Analyserer prosjektomfang, kontraktsvilkår og begrensninger', delay: 800 },
+      { text: '<strong>Rammeverkstilpasning</strong> — Kartlegger mot {FRAMEWORK} risikomatrisedefinisjonene', delay: 2200 },
+      { text: '<strong>Risikoidentifisering</strong> — Skanner etter trusler på tvers av {CATEGORIES} kategorier', delay: 3800 },
+      { text: '<strong>Sannsynlighetsvurdering</strong> — Evaluerer sannsynlighet basert på prosjektparametere', delay: 5800 },
+      { text: '<strong>Konsekvensvurdering</strong> — Scorer innvirkning mot terskeldefinisjoner', delay: 7500 },
+      { text: '<strong>Tiltaksplanlegging</strong> — Genererer handlingsrettede behandlingsstrategier', delay: 9500 },
+      { text: '<strong>Kompilerer resultater</strong> — Bygger risikoregister og prioriteringsrangering', delay: 11500 }
+    ],
+    progressComplete: '<strong>Fullført</strong> — Risikovurdering generert',
+    errors: {
+      noDescription: 'Vennligst oppgi en prosjektbeskrivelse.',
+      invalidJson: 'AI-svaret var ikke gyldig JSON. Vennligst prøv igjen.',
+      noRisks: 'Ingen risikoer ble generert. Prøv igjen med mer detaljer.',
+      invalidKey: 'Ugyldig API-nøkkel.',
+      rateLimit: 'Hastighetsgrense overskredet. Vennligst vent et øyeblikk.',
+      apiError: 'API-feil',
+      emptyResponse: 'Tomt svar fra API-et.'
+    },
+    rootCause: 'Rotårsak:',
+    removeFile: 'Fjern fil',
+    csv: { headers: ['ID','Kategori','Beskrivelse','Sannsynlighet','Konsekvens','Risikonivå','Rotårsak','Tiltak','Ansvarlig'] },
+    matrixCorner: 'SANNSYNLIGHET /<br>KONSEKVENS',
+    systemPrompt: `Du er en senior risikostyringsrådgiver med spesialisering innen energiinfrastruktur, industriprosjekter og prosjektledelse. Du følger ISO 31000:2018 (Risikostyring — Retningslinjer) og IEC 31010:2019 (Risikovurderingsteknikker) metodikk nøye. Du anvender {frameworkName}-risikorammeverket.
+
+Din oppgave er å utarbeide et omfattende prosjektrisikoregister. Du må:
+1. Identifisere nøyaktig {riskCount} distinkte, prosjektspesifikke risikoer (kun trusler — ikke muligheter).
+2. Kategorisere hver risiko under en av disse kategoriene: {categories}.
+3. For hver risiko, vurdere sannsynlighet og konsekvens ved hjelp av 3-nivåskalaen definert nedenfor.
+4. Oppgi en tydelig rotårsak og handlingsrettede tiltak.
+5. Vær spesifikk for det beskrevne prosjektet — unngå generiske standardrisikoer.
+
+Risikomatrisedefinisjonene ({frameworkName}):
+
+KONSEKVENS (bruk verste tilfelle på tvers av alle tre dimensjoner):
+
+Kostnad:
+- Høy: {consCostHigh}
+- Middels: {consCostMed}
+- Lav: {consCostLow}
+
+Tid:
+- Høy: {consTimeHigh}
+- Middels: {consTimeMed}
+- Lav: {consTimeLow}
+
+Kvalitet:
+- Høy: {consQualityHigh}
+- Middels: {consQualityMed}
+- Lav: {consQualityLow}
+
+SANNSYNLIGHET:
+- Høy: {likeHigh}
+- Middels: {likeMed}
+- Lav: {likeLow}
+
+RISIKONIVÅMATRISE (Sannsynlighet x Konsekvens):
+         |  Lav konsekvens    |  Middels konsekvens  |  Høy konsekvens
+Høy      |     GUL            |       RØD            |      RØD
+Middels  |     GRØNN          |       GUL            |      RØD
+Lav      |     GRØNN          |       GRØNN          |      GUL
+
+Skriv KUN gyldig JSON — ingen markdown-blokker, ingen kommentarer. Bruk denne nøyaktige strukturen:
+{
+  "risks": [
+    {
+      "id": 1,
+      "category": "...",
+      "description": "...",
+      "likelihood": "High|Medium|Low",
+      "consequence": "High|Medium|Low",
+      "root_cause": "...",
+      "mitigation": "..."
+    }
+  ]
+}`,
+    userPromptSuffix: 'Basert på prosjektdetaljene ovenfor, generer et omfattende risikoregister med nøyaktig {count} spesifikke risikoer. Husk: skriv kun gyldig JSON.',
+    exampleProject: `En klient gjennomfører for tiden revisjoner av sine høytrykksledninger for å vurdere samsvar med en navngitt standard og identifisere eventuelle brudd. For å demonstrere samsvar blir alle brudd vurdert for å fastslå tålbarheten av den tilknyttede risikoen.
+
+Kontrakt og klient:
+- Fastpris: 600 000 Euro
+- Kundestatus: Gullkunde
+- Kundens kontraktsvilkår med høyt ansvar og bøter for forsinkede leveranser
+
+Prosjektoppgaver:
+1. Screene mot tidligere resultater fra lokasjoner
+2. Utføre en stedsspesifikk risikovurdering for de to gjenværende lokasjonene (i Frankrike og Algerie)
+
+Tidsplan:
+- Starter første dag neste måned, varighet 5 måneder
+- Alle endelige leveranser/rapporter må leveres innen slutten av 5 måneder
+
+Team og ressurser:
+- 5 teammedlemmer fra forskjellige land
+- Kun 2 ressurser med nødvendig høytrykkskompetanse i Energy Systems
+- Prosjektsponsor har sikret forpliktelse fra linjeleder for en spesialist
+- Ressurser fra Malaysia og Australia
+- Arbeidet involverer underleverandørkompetanse utenfor DNV ES
+- London-kontoret er ansvarlig, men har aldri jobbet for denne klienten (klienten er kjent for DNV Energy Systems generelt)`,
+    footer: {
+      methodology: 'Metodikk: <a href="https://www.iso.org/obp/ui/#iso:std:iso:31000:ed-2:v1:en" target="_blank" rel="noopener">ISO 31000:2018</a> &amp; <a href="https://www.iso.org/standard/72140.html" target="_blank" rel="noopener">IEC 31010:2019</a>',
+      builtBy: 'Bygget av Metier OEC'
+    }
+  }
+};
+
+/* ═══════════════════════════════════════════════════
+   i18n — Core Functions
+   ═══════════════════════════════════════════════════ */
+function T(key) {
+    const keys = key.split('.');
+    let val = LANG[currentLang];
+    for (const k of keys) {
+        val = val?.[k];
+    }
+    return val !== undefined ? val : key;
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang === 'no' ? 'nb' : 'en';
+    document.querySelectorAll('.lang-chip').forEach(c => c.classList.toggle('active', c.dataset.lang === lang));
+    translateUI();
+    setPreset(activePreset);
+}
+
+function translateUI() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const val = T(el.dataset.i18n);
+        if (typeof val === 'string') el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = T(el.dataset.i18nPlaceholder);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = T(el.dataset.i18nTitle);
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const val = T(el.dataset.i18nHtml);
+        if (typeof val === 'string') el.innerHTML = val;
+    });
+    if (risks.length > 0) {
+        renderMatrix();
+        renderSummary();
+        renderPriority();
+        renderTable();
+    }
+}
+
+/* ═══════════════════════════════════════════════════
+   Risk Matrix Logic
+   ═══════════════════════════════════════════════════ */
+const RISK_MATRIX = {
+    'High-High':'RED','High-Medium':'RED','High-Low':'YELLOW',
+    'Medium-High':'RED','Medium-Medium':'YELLOW','Medium-Low':'GREEN',
+    'Low-High':'YELLOW','Low-Medium':'GREEN','Low-Low':'GREEN'
+};
+function calcRiskLevel(l, c) { return RISK_MATRIX[`${l}-${c}`] || 'GREEN'; }
+
+/* Risk priority score for treatment ranking */
+const SEVERITY_SCORE = { 'RED': 3, 'YELLOW': 2, 'GREEN': 1 };
+const LIKELIHOOD_SCORE = { 'High': 3, 'Medium': 2, 'Low': 1 };
+const CONSEQUENCE_SCORE = { 'High': 3, 'Medium': 2, 'Low': 1 };
+
+/* ═══════════════════════════════════════════════════
+   Framework Presets
+   ═══════════════════════════════════════════════════ */
+const PRESET_NAMES = {
+    dnv: 'DNV Energy Systems',
+    iso: 'ISO 31000:2018',
+    pmi: 'PMI PMBOK'
+};
+
+function setPreset(key) {
+    activePreset = key;
+    document.querySelectorAll('.preset-chip').forEach(c => c.classList.toggle('active', c.dataset.preset === key));
+    const p = LANG[currentLang].presetValues?.[key];
+    if (p) {
+        document.getElementById('fw-cons-cost-high').value = p.consCostHigh;
+        document.getElementById('fw-cons-cost-med').value = p.consCostMed;
+        document.getElementById('fw-cons-cost-low').value = p.consCostLow;
+        document.getElementById('fw-cons-time-high').value = p.consTimeHigh;
+        document.getElementById('fw-cons-time-med').value = p.consTimeMed;
+        document.getElementById('fw-cons-time-low').value = p.consTimeLow;
+        document.getElementById('fw-cons-quality-high').value = p.consQualityHigh;
+        document.getElementById('fw-cons-quality-med').value = p.consQualityMed;
+        document.getElementById('fw-cons-quality-low').value = p.consQualityLow;
+        document.getElementById('fw-like-high').value = p.likeHigh;
+        document.getElementById('fw-like-med').value = p.likeMed;
+        document.getElementById('fw-like-low').value = p.likeLow;
+        document.getElementById('fw-categories').value = p.categories;
+    }
+    toggleCustomFrameworkUpload();
+}
+
+function switchDimension(dim) {
+    document.querySelectorAll('.dimension-tab').forEach(t => t.classList.toggle('active', t.dataset.dim === dim));
+    document.querySelectorAll('.dimension-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`dim-${dim}`).classList.add('active');
+}
+
+function toggleAdvanced() {
+    const btn = document.getElementById('adv-toggle');
+    const sec = document.getElementById('adv-section');
+    btn.classList.toggle('open');
+    sec.classList.toggle('open');
+}
+
+function getFrameworkConfig() {
+    return {
+        name: PRESET_NAMES[activePreset] || 'Custom Framework',
+        consCostHigh: document.getElementById('fw-cons-cost-high').value,
+        consCostMed: document.getElementById('fw-cons-cost-med').value,
+        consCostLow: document.getElementById('fw-cons-cost-low').value,
+        consTimeHigh: document.getElementById('fw-cons-time-high').value,
+        consTimeMed: document.getElementById('fw-cons-time-med').value,
+        consTimeLow: document.getElementById('fw-cons-time-low').value,
+        consQualityHigh: document.getElementById('fw-cons-quality-high').value,
+        consQualityMed: document.getElementById('fw-cons-quality-med').value,
+        consQualityLow: document.getElementById('fw-cons-quality-low').value,
+        likeHigh: document.getElementById('fw-like-high').value,
+        likeMed: document.getElementById('fw-like-med').value,
+        likeLow: document.getElementById('fw-like-low').value,
+        categories: document.getElementById('fw-categories').value
+    };
+}
+
+/* ═══════════════════════════════════════════════════
+   Example Project
+   ═══════════════════════════════════════════════════ */
+function loadExample() {
+    document.getElementById('project-category').value = 'Complex';
+    document.getElementById('project-context').value = T('exampleProject');
+}
+
+/* ═══════════════════════════════════════════════════
+   Analysis Progress Feed
+   ═══════════════════════════════════════════════════ */
+let progressTimers = [];
+
+function startProgressFeed() {
+    const feed = document.getElementById('progress-feed');
+    feed.innerHTML = '';
+    feed.classList.add('visible');
+    progressTimers = [];
+
+    const fw = getFrameworkConfig();
+    const catCount = fw.categories.split(',').length;
+    const steps = T('progress');
+
+    steps.forEach((step, i) => {
+        const timer = setTimeout(() => {
+            // Mark previous step as done
+            const prevIcon = feed.querySelector('.step-icon.pending');
+            if (prevIcon) {
+                prevIcon.classList.remove('pending');
+                prevIcon.classList.add('done');
+                prevIcon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            }
+
+            const el = document.createElement('div');
+            el.className = 'progress-step';
+            el.style.animationDelay = '0s';
+
+            const text = step.text
+                .replace('{FRAMEWORK}', fw.name)
+                .replace('{CATEGORIES}', catCount);
+
+            const now = new Date();
+            const ts = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            el.innerHTML = `
+                <div class="step-icon pending"></div>
+                <div class="step-text">${text}</div>
+                <span class="step-timestamp">${ts}</span>
+            `;
+            feed.appendChild(el);
+            feed.scrollTop = feed.scrollHeight;
+        }, step.delay);
+        progressTimers.push(timer);
+    });
+}
+
+function finishProgressFeed() {
+    progressTimers.forEach(clearTimeout);
+    progressTimers = [];
+    const feed = document.getElementById('progress-feed');
+    // Mark all pending as done
+    feed.querySelectorAll('.step-icon.pending').forEach(icon => {
+        icon.classList.remove('pending');
+        icon.classList.add('done');
+        icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    });
+
+    // Add completion step
+    const now = new Date();
+    const ts = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const el = document.createElement('div');
+    el.className = 'progress-step';
+    el.innerHTML = `
+        <div class="step-icon done"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="step-text">${T('progressComplete')}</div>
+        <span class="step-timestamp">${ts}</span>
+    `;
+    feed.appendChild(el);
+}
+
+function clearProgressFeed() {
+    progressTimers.forEach(clearTimeout);
+    progressTimers = [];
+    const feed = document.getElementById('progress-feed');
+    feed.classList.remove('visible');
+    feed.innerHTML = '';
+}
+
+/* ═══════════════════════════════════════════════════
+   Prompt Construction
+   ═══════════════════════════════════════════════════ */
+function buildSystemPrompt() {
+    const fw = getFrameworkConfig();
+    const riskCount = document.getElementById('risk-count').value;
+    const template = T('systemPrompt');
+    const prompt = template
+        .replace(/\{frameworkName\}/g, fw.name)
+        .replace(/\{riskCount\}/g, riskCount)
+        .replace(/\{categories\}/g, fw.categories)
+        .replace(/\{consCostHigh\}/g, fw.consCostHigh)
+        .replace(/\{consCostMed\}/g, fw.consCostMed)
+        .replace(/\{consCostLow\}/g, fw.consCostLow)
+        .replace(/\{consTimeHigh\}/g, fw.consTimeHigh)
+        .replace(/\{consTimeMed\}/g, fw.consTimeMed)
+        .replace(/\{consTimeLow\}/g, fw.consTimeLow)
+        .replace(/\{consQualityHigh\}/g, fw.consQualityHigh)
+        .replace(/\{consQualityMed\}/g, fw.consQualityMed)
+        .replace(/\{consQualityLow\}/g, fw.consQualityLow)
+        .replace(/\{likeHigh\}/g, fw.likeHigh)
+        .replace(/\{likeMed\}/g, fw.likeMed)
+        .replace(/\{likeLow\}/g, fw.likeLow);
+    return prompt + (customFrameworkFile ? `\n\n--- ADDITIONAL FRAMEWORK CONTEXT ---\n${customFrameworkFile.content}\n--- END ADDITIONAL FRAMEWORK CONTEXT ---` : '');
 }
 
 function buildUserPrompt(category, context) {
-    return `Project Category: ${category}
+    const riskCount = document.getElementById('risk-count').value;
+    let prompt = `Project Category: ${category}\n\nProject Description:\n${context}`;
 
-Project Description:
-${context}
+    if (projectAttachedFiles.length > 0) {
+        prompt += '\n\n--- ATTACHED PROJECT DOCUMENTS ---';
+        projectAttachedFiles.forEach(f => {
+            prompt += `\n\n[File: ${f.name}]\n${f.content}`;
+        });
+        prompt += '\n--- END ATTACHED DOCUMENTS ---';
+    }
 
-Based on the above project details, generate a comprehensive risk register with 8-12 specific risks. Remember: output valid JSON only.`;
+    prompt += '\n\n' + T('userPromptSuffix').replace('{count}', riskCount);
+    return prompt;
 }
 
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    Claude API Call
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 async function callClaudeAPI(apiKey, systemPrompt, userPrompt) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -818,59 +1975,52 @@ async function callClaudeAPI(apiKey, systemPrompt, userPrompt) {
 
     if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        if (response.status === 401) throw new Error('Invalid API key. Please check your Anthropic API key and try again.');
-        if (response.status === 429) throw new Error('Rate limit exceeded. Please wait a moment and try again.');
-        throw new Error(err.error?.message || `API error (${response.status})`);
+        if (response.status === 401) throw new Error(T('errors.invalidKey'));
+        if (response.status === 429) throw new Error(T('errors.rateLimit'));
+        throw new Error(err.error?.message || `${T('errors.apiError')} (${response.status})`);
     }
 
     const data = await response.json();
     const text = data.content?.[0]?.text;
-    if (!text) throw new Error('Empty response from the API. Please try again.');
+    if (!text) throw new Error(T('errors.emptyResponse'));
     return text;
 }
 
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    Main Generate Flow
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 async function generateRiskAssessment() {
-    const apiKey = document.getElementById('api-key').value.trim();
+    const apiKey = API_KEY;
     const category = document.getElementById('project-category').value;
     const context = document.getElementById('project-context').value.trim();
     const btn = document.getElementById('generate-btn');
     const errEl = document.getElementById('error-msg');
 
-    // Validation
     errEl.classList.remove('visible');
-    if (!apiKey) return showError('Please enter your Anthropic API key.');
-    if (!context) return showError('Please provide a project description.');
+    if (!context) return showError(T('errors.noDescription'));
 
-    // Loading state
     btn.classList.add('loading');
     btn.disabled = true;
+    startProgressFeed();
 
     try {
         const systemPrompt = buildSystemPrompt();
         const userPrompt = buildUserPrompt(category, context);
         const raw = await callClaudeAPI(apiKey, systemPrompt, userPrompt);
 
-        // Parse JSON — handle potential markdown fences
         let cleaned = raw.trim();
         if (cleaned.startsWith('```')) {
             cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
         }
 
         let parsed;
-        try {
-            parsed = JSON.parse(cleaned);
-        } catch (e) {
-            throw new Error('The AI response was not valid JSON. Please try again.');
-        }
+        try { parsed = JSON.parse(cleaned); }
+        catch (e) { throw new Error(T('errors.invalidJson')); }
 
         if (!Array.isArray(parsed.risks) || parsed.risks.length === 0) {
-            throw new Error('No risks were generated. Please try again with more project detail.');
+            throw new Error(T('errors.noRisks'));
         }
 
-        // Populate state
         risks = parsed.risks.map((r, i) => ({
             id: r.id || (i + 1),
             category: r.category || 'General',
@@ -882,13 +2032,13 @@ async function generateRiskAssessment() {
             responsible: ''
         }));
 
-        // Compute risk levels
         risks.forEach(r => { r.riskLevel = calcRiskLevel(r.likelihood, r.consequence); });
 
-        // Render
+        finishProgressFeed();
         renderAll();
 
     } catch (err) {
+        clearProgressFeed();
         showError(err.message);
     } finally {
         btn.classList.remove('loading');
@@ -899,8 +2049,7 @@ async function generateRiskAssessment() {
 function normLevel(val) {
     if (!val) return 'Medium';
     const v = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
-    if (['High', 'Medium', 'Low'].includes(v)) return v;
-    return 'Medium';
+    return ['High','Medium','Low'].includes(v) ? v : 'Medium';
 }
 
 function showError(msg) {
@@ -909,25 +2058,24 @@ function showError(msg) {
     el.classList.add('visible');
 }
 
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    Rendering
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 function renderAll() {
     document.getElementById('placeholder').style.display = 'none';
     document.getElementById('matrix-section').classList.add('visible');
+    document.getElementById('priority-section').classList.add('visible');
     document.getElementById('table-section').classList.add('visible');
     renderMatrix();
     renderSummary();
+    renderPriority();
     renderTable();
 }
 
 function renderMatrix() {
-    // Clear existing chips
     document.querySelectorAll('.risk-chip').forEach(el => el.remove());
-    // Remove old "no-risks" labels
     document.querySelectorAll('.matrix-label').forEach(el => el.remove());
 
-    // Build a map of cell -> risks
     const cellMap = {};
     risks.forEach(r => {
         const key = `${r.likelihood.toLowerCase()}-${r.consequence.toLowerCase()}`;
@@ -935,21 +2083,19 @@ function renderMatrix() {
         cellMap[key].push(r);
     });
 
-    // Place chips
     const cellIds = {
-        'high-low': 'cell-high-low', 'high-medium': 'cell-high-medium', 'high-high': 'cell-high-high',
-        'medium-low': 'cell-medium-low', 'medium-medium': 'cell-medium-medium', 'medium-high': 'cell-medium-high',
-        'low-low': 'cell-low-low', 'low-medium': 'cell-low-medium', 'low-high': 'cell-low-high'
+        'high-low':'cell-high-low','high-medium':'cell-high-medium','high-high':'cell-high-high',
+        'medium-low':'cell-medium-low','medium-medium':'cell-medium-medium','medium-high':'cell-medium-high',
+        'low-low':'cell-low-low','low-medium':'cell-low-medium','low-high':'cell-low-high'
     };
 
     Object.entries(cellIds).forEach(([key, id]) => {
         const cell = document.getElementById(id);
         const riskList = cellMap[key] || [];
         if (riskList.length === 0) {
-            // empty cell label
             const lbl = document.createElement('span');
             lbl.className = 'matrix-label';
-            lbl.textContent = cell.classList.contains('red') ? 'RED' : cell.classList.contains('yellow') ? 'YELLOW' : 'GREEN';
+            lbl.textContent = cell.classList.contains('red') ? T('riskLevels.RED') : cell.classList.contains('yellow') ? T('riskLevels.YELLOW') : T('riskLevels.GREEN');
             cell.appendChild(lbl);
         } else {
             riskList.forEach(r => {
@@ -961,7 +2107,7 @@ function renderMatrix() {
                 chip.setAttribute('aria-label', `Risk ${r.id}: ${r.category}`);
                 chip.setAttribute('tabindex', '0');
                 chip.onclick = () => toggleHighlight(r.id);
-                chip.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleHighlight(r.id); } };
+                chip.onkeydown = (e) => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); toggleHighlight(r.id); }};
                 if (highlightedRiskId === r.id) chip.classList.add('highlighted');
                 cell.appendChild(chip);
             });
@@ -970,15 +2116,43 @@ function renderMatrix() {
 }
 
 function renderSummary() {
-    const counts = { RED: 0, YELLOW: 0, GREEN: 0 };
+    const counts = { RED:0, YELLOW:0, GREEN:0 };
     risks.forEach(r => counts[r.riskLevel]++);
-    const el = document.getElementById('risk-summary');
-    el.innerHTML = `
-        <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} High</span>
-        <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} Medium</span>
-        <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} Low</span>
-        <span class="summary-stat" style="margin-left:auto; color:var(--grey-200); font-weight:400;">${risks.length} risks identified</span>
+    document.getElementById('risk-summary').innerHTML = `
+        <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} ${T('summary.high')}</span>
+        <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} ${T('summary.medium')}</span>
+        <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} ${T('summary.low')}</span>
+        <span class="summary-stat" style="margin-left:auto;color:var(--text-tertiary);font-weight:400;font-size:0.72rem;">${risks.length} ${T('summary.risksIdentified')}</span>
     `;
+}
+
+function renderPriority() {
+    /* Sort risks by composite score: severity * (likelihood + consequence) */
+    const sorted = [...risks].sort((a, b) => {
+        const scoreA = SEVERITY_SCORE[a.riskLevel] * (LIKELIHOOD_SCORE[a.likelihood] + CONSEQUENCE_SCORE[a.consequence]);
+        const scoreB = SEVERITY_SCORE[b.riskLevel] * (LIKELIHOOD_SCORE[b.likelihood] + CONSEQUENCE_SCORE[b.consequence]);
+        return scoreB - scoreA;
+    });
+
+    const container = document.getElementById('priority-list');
+    container.innerHTML = '';
+
+    sorted.forEach((r, i) => {
+        const tier = r.riskLevel === 'RED' ? 'critical' : r.riskLevel === 'YELLOW' ? 'important' : 'monitor';
+        const tierLabel = r.riskLevel === 'RED' ? T('priority.actNow') : r.riskLevel === 'YELLOW' ? T('priority.plan') : T('priority.monitor');
+
+        const item = document.createElement('div');
+        item.className = 'priority-item';
+        item.innerHTML = `
+            <div class="priority-rank ${tier}">${i + 1}</div>
+            <div class="priority-body">
+                <div class="priority-risk-name">R${r.id} — ${escHTML(r.category)}</div>
+                <div class="priority-action">${escHTML(r.mitigation)}</div>
+            </div>
+            <div class="priority-badge ${tier}">${tierLabel}</div>
+        `;
+        container.appendChild(item);
+    });
 }
 
 function renderTable() {
@@ -990,7 +2164,7 @@ function renderTable() {
         tr.id = `risk-row-${r.id}`;
         if (highlightedRiskId === r.id) tr.classList.add('highlighted');
         tr.onclick = (e) => {
-            if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+            if (e.target.tagName==='SELECT'||e.target.tagName==='INPUT') return;
             toggleHighlight(r.id);
         };
 
@@ -999,33 +2173,33 @@ function renderTable() {
             <td class="risk-category-cell">${escHTML(r.category)}</td>
             <td class="risk-desc">
                 <div>${escHTML(r.description)}</div>
-                ${r.root_cause ? `<div style="margin-top:0.3rem;font-size:0.76rem;color:var(--grey-200);"><strong>Root cause:</strong> ${escHTML(r.root_cause)}</div>` : ''}
+                ${r.root_cause ? `<div class="root-cause-text"><strong>${T('rootCause')}</strong> ${escHTML(r.root_cause)}</div>` : ''}
             </td>
             <td>
-                <select aria-label="Likelihood for risk ${r.id}" onchange="updateRisk(${r.id}, 'likelihood', this.value)">
-                    <option value="Low" ${r.likelihood === 'Low' ? 'selected' : ''}>Low</option>
-                    <option value="Medium" ${r.likelihood === 'Medium' ? 'selected' : ''}>Medium</option>
-                    <option value="High" ${r.likelihood === 'High' ? 'selected' : ''}>High</option>
+                <select aria-label="Likelihood for risk ${r.id}" onchange="updateRisk(${r.id},'likelihood',this.value)">
+                    <option value="Low" ${r.likelihood==='Low'?'selected':''}>${T('levels.low')}</option>
+                    <option value="Medium" ${r.likelihood==='Medium'?'selected':''}>${T('levels.medium')}</option>
+                    <option value="High" ${r.likelihood==='High'?'selected':''}>${T('levels.high')}</option>
                 </select>
             </td>
             <td>
-                <select aria-label="Consequence for risk ${r.id}" onchange="updateRisk(${r.id}, 'consequence', this.value)">
-                    <option value="Low" ${r.consequence === 'Low' ? 'selected' : ''}>Low</option>
-                    <option value="Medium" ${r.consequence === 'Medium' ? 'selected' : ''}>Medium</option>
-                    <option value="High" ${r.consequence === 'High' ? 'selected' : ''}>High</option>
+                <select aria-label="Consequence for risk ${r.id}" onchange="updateRisk(${r.id},'consequence',this.value)">
+                    <option value="Low" ${r.consequence==='Low'?'selected':''}>${T('levels.low')}</option>
+                    <option value="Medium" ${r.consequence==='Medium'?'selected':''}>${T('levels.medium')}</option>
+                    <option value="High" ${r.consequence==='High'?'selected':''}>${T('levels.high')}</option>
                 </select>
             </td>
-            <td><span class="risk-level-badge ${r.riskLevel.toLowerCase()}">${r.riskLevel}</span></td>
+            <td><span class="risk-level-badge ${r.riskLevel.toLowerCase()}">${T('riskLevels.' + r.riskLevel)}</span></td>
             <td class="mitigation-text">${escHTML(r.mitigation)}</td>
-            <td><input type="text" value="${escHTML(r.responsible)}" placeholder="—" aria-label="Responsible for risk ${r.id}" onchange="updateRisk(${r.id}, 'responsible', this.value)"></td>
+            <td><input type="text" value="${escHTML(r.responsible)}" placeholder="—" aria-label="Responsible for risk ${r.id}" onchange="updateRisk(${r.id},'responsible',this.value)"></td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    Interaction
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 function updateRisk(id, field, value) {
     const risk = risks.find(r => r.id === id);
     if (!risk) return;
@@ -1034,13 +2208,13 @@ function updateRisk(id, field, value) {
         risk.riskLevel = calcRiskLevel(risk.likelihood, risk.consequence);
         renderMatrix();
         renderSummary();
-        // Update badge in the table row
+        renderPriority();
         const row = document.getElementById(`risk-row-${id}`);
         if (row) {
             const badge = row.querySelector('.risk-level-badge');
             if (badge) {
                 badge.className = `risk-level-badge ${risk.riskLevel.toLowerCase()}`;
-                badge.textContent = risk.riskLevel;
+                badge.textContent = T('riskLevels.' + risk.riskLevel);
             }
         }
     }
@@ -1048,65 +2222,179 @@ function updateRisk(id, field, value) {
 
 function toggleHighlight(id) {
     highlightedRiskId = highlightedRiskId === id ? null : id;
-    // Update chips
     document.querySelectorAll('.risk-chip').forEach(chip => {
         chip.classList.toggle('highlighted', parseInt(chip.textContent) === highlightedRiskId);
     });
-    // Update rows
     document.querySelectorAll('.risk-table tbody tr').forEach(row => {
         row.classList.toggle('highlighted', row.id === `risk-row-${highlightedRiskId}`);
     });
-    // Scroll to row if highlighting
     if (highlightedRiskId) {
         const row = document.getElementById(`risk-row-${highlightedRiskId}`);
         if (row) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 }
 
-/* ═════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CSV Export
-   ═════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 function exportCSV() {
-    const headers = ['ID', 'Category', 'Description', 'Likelihood', 'Consequence', 'Risk Level', 'Root Cause', 'Mitigating Action', 'Responsible'];
+    const headers = T('csv.headers');
     const rows = risks.map(r => [
-        r.id,
-        csvEscape(r.category),
-        csvEscape(r.description),
-        r.likelihood,
-        r.consequence,
-        r.riskLevel,
-        csvEscape(r.root_cause),
-        csvEscape(r.mitigation),
-        csvEscape(r.responsible)
+        r.id, csvEscape(r.category), csvEscape(r.description),
+        r.likelihood, r.consequence, r.riskLevel,
+        csvEscape(r.root_cause), csvEscape(r.mitigation), csvEscape(r.responsible)
     ]);
-
     let csv = headers.join(',') + '\n';
     rows.forEach(row => { csv += row.join(',') + '\n'; });
-
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `risk-register-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `risk-register-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
 }
 
 function csvEscape(val) {
     if (!val) return '""';
-    const s = String(val).replace(/"/g, '""');
-    return `"${s}"`;
+    return `"${String(val).replace(/"/g,'""')}"`;
 }
 
-/* ═════════════════════════════════════════════════════════
-   Utilities
-   ═════════════════════════════════════════════════════════ */
 function escHTML(str) {
     if (!str) return '';
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
+
+/* ═══════════════════════════════════════════════════
+   Tooltip touch support
+   ═══════════════════════════════════════════════════ */
+function toggleTooltip(e) {
+    e.stopPropagation();
+    const icon = e.currentTarget;
+    const isActive = icon.classList.contains('active');
+    // Close all other tooltips
+    document.querySelectorAll('.info-icon.active').forEach(i => i.classList.remove('active'));
+    if (!isActive) icon.classList.add('active');
+}
+document.addEventListener('click', () => {
+    document.querySelectorAll('.info-icon.active').forEach(i => i.classList.remove('active'));
+});
+
+/* ═══════════════════════════════════════════════════
+   File Upload Handling
+   ═══════════════════════════════════════════════════ */
+const ALLOWED_EXTENSIONS = ['.txt', '.md', '.csv', '.json', '.xml', '.log', '.rtf'];
+const MAX_TOTAL_CHARS = 50000;
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+}
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('dragover');
+}
+function handleFileDrop(e, type) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    const files = Array.from(e.dataTransfer.files);
+    processFiles(files, type);
+}
+function handleFileSelect(e, type) {
+    const files = Array.from(e.target.files);
+    processFiles(files, type);
+    e.target.value = '';
+}
+
+function processFiles(files, type) {
+    const errorEl = document.getElementById(`${type}-file-error`);
+    errorEl.style.display = 'none';
+
+    files.forEach(file => {
+        const ext = '.' + file.name.split('.').pop().toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+            errorEl.textContent = `"${file.name}" ${T('input.upload.unsupported')}`;
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            if (type === 'project') {
+                const totalChars = projectAttachedFiles.reduce((sum, f) => sum + f.content.length, 0) + content.length;
+                if (totalChars > MAX_TOTAL_CHARS) {
+                    errorEl.textContent = `"${file.name}" ${T('input.upload.charLimit')}`;
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                projectAttachedFiles.push({ name: file.name, size: file.size, content: content });
+                renderFileChips('project');
+            } else if (type === 'framework') {
+                customFrameworkFile = { name: file.name, size: file.size, content: content };
+                renderFileChips('framework');
+            }
+        };
+        reader.readAsText(file);
+    });
+}
+
+function renderFileChips(type) {
+    if (type === 'project') {
+        const container = document.getElementById('project-attached-files');
+        container.innerHTML = '';
+        projectAttachedFiles.forEach((f, i) => {
+            const chip = document.createElement('span');
+            chip.className = 'file-chip';
+            chip.innerHTML = `${escHTML(f.name)} <span class="file-size">${formatFileSize(f.size)}</span> <button class="file-remove" onclick="removeProjectFile(${i})" title="${T('removeFile')}">&times;</button>`;
+            container.appendChild(chip);
+        });
+    } else if (type === 'framework') {
+        const container = document.getElementById('framework-attached-files');
+        container.innerHTML = '';
+        if (customFrameworkFile) {
+            const chip = document.createElement('span');
+            chip.className = 'file-chip';
+            chip.innerHTML = `${escHTML(customFrameworkFile.name)} <span class="file-size">${formatFileSize(customFrameworkFile.size)}</span> <button class="file-remove" onclick="removeFrameworkFile()" title="${T('removeFile')}">&times;</button>`;
+            container.appendChild(chip);
+        }
+    }
+}
+
+function removeProjectFile(index) {
+    projectAttachedFiles.splice(index, 1);
+    renderFileChips('project');
+    document.getElementById('project-file-error').style.display = 'none';
+}
+
+function removeFrameworkFile() {
+    customFrameworkFile = null;
+    renderFileChips('framework');
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+/* ═══════════════════════════════════════════════════
+   Custom Framework Upload Toggle
+   ═══════════════════════════════════════════════════ */
+function toggleCustomFrameworkUpload() {
+    const el = document.getElementById('custom-framework-section');
+    if (el) {
+        el.classList.toggle('visible', activePreset === 'custom');
+    }
+}
+
+/* ═══════════════════════════════════════════════════
+   Initialization — Language
+   ═══════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    setLanguage(currentLang);
+});
 </script>
 
 </body>
