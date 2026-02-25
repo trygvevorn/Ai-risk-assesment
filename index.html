@@ -5,53 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metier — AI Risk Assessment Tool</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src https://api.anthropic.com; font-src https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; base-uri 'self'; frame-ancestors 'none';">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* Primary — Metier Blue system */
             --navy: #00205B;
-            --navy-deep: #001438;
-            --navy-mid: #0a3270;
-            --bg: #EBEEF2;
-            --bg-subtle: #E3E7EC;
-            --white: #FFFFFF;
+            --navy-deep: #001844;
+            --navy-mid: #245787;
+            --bg: #F5F2EE;
+            --bg-subtle: #EDEAE6;
+            --white: #FEFDFB;
 
-            --surface: #FFFFFF;
-            --surface-raised: #FAFBFD;
-            --surface-sunken: #F4F5F9;
-            --border-subtle: rgba(0, 32, 91, 0.08);
-            --border-medium: rgba(0, 32, 91, 0.14);
-            --text-primary: #00205B;
-            --text-secondary: #3D5A80;
-            --text-tertiary: #7B8FA8;
-            --text-on-dark: rgba(255, 255, 255, 0.92);
-            --text-on-dark-muted: rgba(255, 255, 255, 0.55);
+            /* Surfaces — warm whites */
+            --surface: #FEFDFB;
+            --surface-raised: #FAF9F7;
+            --surface-sunken: #F0EDEA;
+            --border-subtle: rgba(0, 32, 91, 0.07);
+            --border-medium: rgba(0, 32, 91, 0.13);
+            --border-strong: rgba(0, 32, 91, 0.22);
 
-            --risk-green: #1B8A4A;
-            --risk-green-soft: #E8F5ED;
-            --risk-green-glow: rgba(27, 138, 74, 0.12);
-            --risk-yellow: #C49000;
-            --risk-yellow-soft: #FEF8E6;
-            --risk-yellow-glow: rgba(196, 144, 0, 0.12);
-            --risk-red: #C0392B;
-            --risk-red-soft: #FDECEB;
-            --risk-red-glow: rgba(192, 57, 43, 0.12);
+            /* Text */
+            --text-primary: #1A1D24;
+            --text-secondary: #4A5060;
+            --text-tertiary: #7A8194;
+            --text-on-dark: #F8F9FB;
+            --text-on-dark-muted: rgba(248, 249, 251, 0.60);
 
-            --accent-blue: #3B82F6;
-            --accent-glow: rgba(59, 130, 246, 0.15);
+            /* Risk — Forest / Gold / Rust */
+            --risk-green: #1A7A52;
+            --risk-green-soft: #EBF5F0;
+            --risk-green-glow: rgba(26, 122, 82, 0.12);
+            --risk-yellow: #916D00;
+            --risk-yellow-soft: #FBF3DD;
+            --risk-yellow-glow: rgba(145, 109, 0, 0.12);
+            --risk-red: #B03A2E;
+            --risk-red-soft: #FAEDEB;
+            --risk-red-glow: rgba(176, 58, 46, 0.12);
 
-            --font-body: 'DM Sans', system-ui, sans-serif;
-            --font-logo: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
-            --font-display: 'DM Sans', system-ui, sans-serif;
-            --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+            /* Accent — Metier Secondary Blue */
+            --accent-blue: #245787;
+            --accent-glow: rgba(36, 87, 135, 0.15);
+            --accent-hover: #1B4A75;
 
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
+            /* Typography */
+            --font-body: 'Source Sans 3', system-ui, sans-serif;
+            --font-logo: 'Manrope', system-ui, sans-serif;
+            --font-display: 'Manrope', system-ui, sans-serif;
+            --font-mono: 'IBM Plex Mono', 'SF Mono', monospace;
 
+            /* Radii */
+            --radius-sm: 5px;
+            --radius-md: 8px;
+            --radius-lg: 10px;
+
+            /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0, 32, 91, 0.05);
-            --shadow-md: 0 2px 8px rgba(0, 32, 91, 0.06), 0 1px 2px rgba(0, 32, 91, 0.04);
+            --shadow-md: 0 2px 8px rgba(0, 32, 91, 0.06), 0 1px 2px rgba(0, 32, 91, 0.03);
             --shadow-lg: 0 4px 24px rgba(0, 32, 91, 0.08), 0 2px 6px rgba(0, 32, 91, 0.04);
-            --shadow-glow-blue: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            --shadow-glow-blue: 0 0 0 3px rgba(36, 87, 135, 0.18);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,44 +82,47 @@
             inset: 0;
             pointer-events: none;
             z-index: 9999;
-            opacity: 0.022;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.12;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             background-repeat: repeat;
-            background-size: 128px;
+            background-size: 256px;
         }
 
-        /* ── Header ── */
+        /* ── Header — Frosted Toolbar ── */
         .header {
-            background: var(--navy-deep);
-            background-image: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-mid) 100%);
-            color: var(--text-on-dark);
+            background: rgba(254, 253, 251, 0.88);
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            color: var(--text-primary);
             padding: 0 2rem;
-            height: 56px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 10;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+        .header.scrolled {
+            background: rgba(254, 253, 251, 0.96);
+            border-bottom-color: var(--border-medium);
+            box-shadow: 0 1px 3px rgba(0, 32, 91, 0.05);
         }
         .header h1 {
             font-family: var(--font-logo);
-            font-size: 1.35rem;
+            font-size: 1.2rem;
             font-weight: 800;
-            letter-spacing: -0.01em;
-            color: var(--white);
+            letter-spacing: -0.02em;
+            color: var(--navy);
         }
         .header-subtitle {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: var(--text-on-dark-muted);
-            letter-spacing: 0.02em;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            letter-spacing: 0.01em;
         }
         .header-right {
             display: flex;
@@ -118,27 +132,27 @@
         .lang-toggle {
             display: flex;
             gap: 2px;
-            background: rgba(255,255,255,0.08);
+            background: var(--surface-sunken);
             border-radius: 100px;
             padding: 2px;
         }
         .lang-chip {
-            padding: 0.2rem 0.5rem;
+            padding: 0.22rem 0.55rem;
             border-radius: 100px;
             font-family: var(--font-body);
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             border: none;
             background: transparent;
-            color: rgba(255,255,255,0.45);
+            color: var(--text-tertiary);
             cursor: pointer;
             transition: all 0.2s;
         }
-        .lang-chip:hover { color: rgba(255,255,255,0.75); }
+        .lang-chip:hover { color: var(--text-secondary); }
         .lang-chip.active {
-            background: var(--white);
-            color: var(--navy);
+            background: var(--navy);
+            color: var(--text-on-dark);
         }
 
         /* ── Layout ── */
@@ -146,67 +160,108 @@
             max-width: 1440px;
             margin: 0 auto;
             padding: 1.5rem 2rem;
-            display: grid;
-            grid-template-columns: 380px 1fr;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 1.5rem;
-            align-items: start;
         }
         @media (max-width: 1000px) {
-            .app-container { grid-template-columns: 1fr; padding: 1rem; }
+            .app-container { padding: 1rem; }
             .header { padding: 0 1rem; }
         }
 
-        /* ── Cards ── */
+        /* ── Panels — Border-based structure, no floating cards ── */
         .card {
             background: var(--surface);
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-md);
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
         }
-        .card:hover { box-shadow: var(--shadow-lg); }
 
         .card-header-bar {
-            padding: 0.85rem 1.25rem;
+            padding: 0.75rem 1.25rem;
             border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--surface-raised);
+            background: var(--surface-sunken);
         }
         .card-title {
+            font-family: var(--font-mono);
             font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
+            font-weight: 500;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
             color: var(--text-tertiary);
         }
         .card-title-main {
             font-family: var(--font-display);
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--text-primary);
             text-transform: none;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
         }
 
         /* ── Input Panel ── */
+        .input-panel {
+            width: 100%;
+            max-width: 560px;
+            transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .input-panel.collapsed {
+            max-width: 960px;
+        }
         .input-panel .card-body {
-            padding: 1.25rem;
+            padding: 1.35rem;
             display: flex;
             flex-direction: column;
-            gap: 1.1rem;
+            gap: 1.15rem;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.3s ease;
         }
+        .input-panel.collapsed .card-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+        }
+        .input-panel .card-header-bar {
+            cursor: default;
+            transition: padding 0.3s ease;
+        }
+        .input-panel.collapsed .card-header-bar {
+            cursor: pointer;
+            border-bottom: none;
+        }
+        .panel-toggle-hint {
+            display: none;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            transition: color 0.2s;
+        }
+        .panel-toggle-hint svg {
+            width: 14px; height: 14px;
+            transition: transform 0.3s ease;
+        }
+        .input-panel.collapsed .panel-toggle-hint { display: flex; }
+        .input-panel.collapsed .panel-toggle-hint svg { transform: rotate(180deg); }
+        .input-panel.collapsed .card-header-bar:hover .panel-toggle-hint { color: var(--accent-blue); }
 
         .field-group label {
             display: block;
-            font-size: 0.68rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 0.35rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-tertiary);
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
         }
         .field-group select,
         .field-group textarea,
@@ -216,7 +271,7 @@
             border: 1px solid var(--border-medium);
             border-radius: var(--radius-sm);
             font-family: var(--font-body);
-            font-size: 0.84rem;
+            font-size: 0.9rem;
             color: var(--text-primary);
             background: var(--white);
             transition: border-color 0.2s, box-shadow 0.2s;
@@ -231,7 +286,7 @@
         }
         .field-group textarea { resize: vertical; min-height: 140px; }
         .field-group .hint {
-            font-size: 0.7rem;
+            font-size: 0.78rem;
             color: var(--text-tertiary);
             margin-top: 0.3rem;
             line-height: 1.5;
@@ -241,19 +296,19 @@
         .advanced-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             background: none;
             border: none;
-            font-family: var(--font-body);
-            font-size: 0.72rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-tertiary);
             cursor: pointer;
             padding: 0;
-            letter-spacing: 0.04em;
+            letter-spacing: -0.01em;
             transition: color 0.2s;
         }
-        .advanced-toggle:hover { color: var(--text-secondary); }
+        .advanced-toggle:hover { color: var(--accent-blue); }
         .advanced-toggle svg {
             width: 14px; height: 14px;
             transition: transform 0.25s ease;
@@ -281,16 +336,16 @@
             gap: 0.5rem;
         }
         .framework-grid label {
-            font-size: 0.62rem;
+            font-size: 0.72rem;
             margin-bottom: 0.2rem;
         }
         .framework-grid input {
             width: 100%;
-            padding: 0.4rem 0.5rem;
+            padding: 0.45rem 0.55rem;
             border: 1px solid var(--border-medium);
             border-radius: var(--radius-sm);
             font-family: var(--font-mono);
-            font-size: 0.7rem;
+            font-size: 0.78rem;
             color: var(--text-primary);
             background: var(--white);
             transition: border-color 0.2s, box-shadow 0.2s;
@@ -306,9 +361,9 @@
             flex-wrap: wrap;
         }
         .preset-chip {
-            padding: 0.3rem 0.6rem;
-            border-radius: 100px;
-            font-size: 0.68rem;
+            padding: 0.32rem 0.65rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.76rem;
             font-weight: 500;
             border: 1px solid var(--border-medium);
             background: var(--white);
@@ -319,20 +374,20 @@
         .preset-chip:hover { background: var(--surface-sunken); }
         .preset-chip.active {
             background: var(--navy);
-            color: var(--white);
+            color: var(--text-on-dark);
             border-color: var(--navy);
         }
 
         /* ── Buttons ── */
         .btn-primary {
             background: var(--navy);
-            color: var(--white);
+            color: var(--text-on-dark);
             border: none;
             padding: 0.7rem 1.5rem;
             border-radius: var(--radius-sm);
-            font-family: var(--font-body);
-            font-size: 0.84rem;
-            font-weight: 600;
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -341,13 +396,7 @@
             gap: 0.5rem;
             position: relative;
             overflow: hidden;
-        }
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.06) 100%);
-            pointer-events: none;
+            letter-spacing: -0.01em;
         }
         .btn-primary:hover {
             background: var(--navy-mid);
@@ -364,7 +413,7 @@
             padding: 0.45rem 0.85rem;
             border-radius: var(--radius-sm);
             font-family: var(--font-body);
-            font-size: 0.75rem;
+            font-size: 0.82rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -372,13 +421,14 @@
         .btn-ghost:hover {
             background: var(--surface-sunken);
             color: var(--text-primary);
+            border-color: var(--border-strong);
         }
 
         /* ── Spinner ── */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner {
             width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             border-top-color: var(--white);
             border-radius: 50%;
             animation: spin 0.65s linear infinite;
@@ -423,8 +473,9 @@
             animation: spin 0.8s linear infinite;
         }
         .step-icon.done svg { color: var(--risk-green); }
+        .step-icon.done { color: var(--risk-green); }
         .step-text {
-            font-size: 0.78rem;
+            font-size: 0.84rem;
             color: var(--text-secondary);
             line-height: 1.45;
         }
@@ -434,7 +485,7 @@
         }
         .step-timestamp {
             font-family: var(--font-mono);
-            font-size: 0.62rem;
+            font-size: 0.7rem;
             color: var(--text-tertiary);
             margin-left: auto;
             flex-shrink: 0;
@@ -443,43 +494,16 @@
 
         /* ── Output ── */
         .output-panel {
-            display: flex;
+            width: 100%;
+            max-width: 960px;
+            display: none;
             flex-direction: column;
             gap: 1.5rem;
         }
-
-        .output-placeholder {
-            text-align: center;
-            padding: 3.5rem 2rem;
-        }
-        .output-placeholder .placeholder-icon {
-            width: 52px; height: 52px;
-            border-radius: 50%;
-            background: var(--surface-sunken);
+        .output-panel.has-results {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.1rem;
         }
-        .output-placeholder .placeholder-icon svg {
-            width: 22px; height: 22px;
-            color: var(--text-tertiary);
-            opacity: 0.5;
-        }
-        .output-placeholder h3 {
-            font-family: var(--font-display);
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.35rem;
-        }
-        .output-placeholder p {
-            font-size: 0.82rem;
-            color: var(--text-tertiary);
-            max-width: 400px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
+
 
         /* ── Risk Matrix ── */
         .matrix-section { display: none; }
@@ -489,28 +513,33 @@
         .risk-matrix-wrapper {
             display: grid;
             grid-template-columns: auto 1fr 1fr 1fr;
-            gap: 3px;
-            max-width: 500px;
+            gap: 2px;
+            max-width: 480px;
             margin: 0 auto;
+            background: var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
         }
         .matrix-corner {
             display: flex;
             align-items: flex-end;
             justify-content: flex-end;
             padding: 0.3rem 0.5rem 0.3rem 0;
-            font-size: 0.58rem;
+            font-size: 0.62rem;
             font-weight: 600;
             color: var(--text-tertiary);
+            background: var(--surface);
         }
         .matrix-col-header {
             text-align: center;
             font-family: var(--font-mono);
-            font-size: 0.65rem;
-            font-weight: 600;
+            font-size: 0.68rem;
+            font-weight: 500;
             color: var(--text-secondary);
             padding: 0.4rem 0.25rem;
             text-transform: uppercase;
             letter-spacing: 0.06em;
+            background: var(--surface);
         }
         .matrix-row-header {
             display: flex;
@@ -518,38 +547,35 @@
             justify-content: flex-end;
             padding-right: 0.6rem;
             font-family: var(--font-mono);
-            font-size: 0.65rem;
-            font-weight: 600;
+            font-size: 0.68rem;
+            font-weight: 500;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.06em;
+            background: var(--surface);
         }
         .matrix-cell {
             min-height: 76px;
-            border-radius: var(--radius-md);
             padding: 0.4rem;
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
             align-items: center;
             justify-content: center;
-            transition: box-shadow 0.25s ease, transform 0.15s ease;
+            transition: filter 0.2s ease;
             position: relative;
         }
-        .matrix-cell:hover { transform: scale(1.02); z-index: 2; }
-        .matrix-cell.green { background: var(--risk-green-soft); box-shadow: inset 0 0 0 1px rgba(27, 138, 74, 0.1); }
-        .matrix-cell.green:hover { box-shadow: inset 0 0 0 1px rgba(27, 138, 74, 0.25), 0 2px 12px var(--risk-green-glow); }
-        .matrix-cell.yellow { background: var(--risk-yellow-soft); box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.1); }
-        .matrix-cell.yellow:hover { box-shadow: inset 0 0 0 1px rgba(196, 144, 0, 0.25), 0 2px 12px var(--risk-yellow-glow); }
-        .matrix-cell.red { background: var(--risk-red-soft); box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.1); }
-        .matrix-cell.red:hover { box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.25), 0 2px 12px var(--risk-red-glow); }
+        .matrix-cell:hover { filter: brightness(0.96); z-index: 2; }
+        .matrix-cell.green { background: var(--risk-green-soft); }
+        .matrix-cell.yellow { background: var(--risk-yellow-soft); }
+        .matrix-cell.red { background: var(--risk-red-soft); }
 
         .matrix-label {
-            font-size: 0.55rem;
+            font-size: 0.58rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            opacity: 0.25;
+            opacity: 0.3;
             pointer-events: none;
             font-family: var(--font-mono);
         }
@@ -558,30 +584,30 @@
             align-items: center;
             justify-content: center;
             width: 30px; height: 30px;
-            border-radius: 50%;
+            border-radius: 4px;
             font-family: var(--font-mono);
-            font-size: 0.7rem;
+            font-size: 0.74rem;
             font-weight: 600;
             color: var(--white);
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
             position: relative;
             z-index: 1;
         }
-        .risk-chip:hover { transform: scale(1.18); z-index: 3; }
-        .risk-chip.highlighted { transform: scale(1.3); z-index: 4; }
-        .risk-chip.green { background: var(--risk-green); box-shadow: 0 2px 6px rgba(27, 138, 74, 0.3); }
-        .risk-chip.green.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(27, 138, 74, 0.4); }
-        .risk-chip.yellow { background: var(--risk-yellow); box-shadow: 0 2px 6px rgba(196, 144, 0, 0.3); }
-        .risk-chip.yellow.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(196, 144, 0, 0.4); }
-        .risk-chip.red { background: var(--risk-red); box-shadow: 0 2px 6px rgba(192, 57, 43, 0.3); }
-        .risk-chip.red.highlighted { box-shadow: 0 0 0 3px var(--navy), 0 2px 12px rgba(192, 57, 43, 0.4); }
+        .risk-chip:hover { transform: scale(1.15); z-index: 3; }
+        .risk-chip.highlighted { transform: scale(1.25); z-index: 4; }
+        .risk-chip.green { background: var(--risk-green); box-shadow: 0 1px 4px rgba(46, 107, 79, 0.3); }
+        .risk-chip.green.highlighted { box-shadow: 0 0 0 2px var(--navy), 0 2px 8px rgba(46, 107, 79, 0.4); }
+        .risk-chip.yellow { background: var(--risk-yellow); color: var(--white); box-shadow: 0 1px 4px rgba(140, 104, 0, 0.3); }
+        .risk-chip.yellow.highlighted { box-shadow: 0 0 0 2px var(--navy), 0 2px 8px rgba(140, 104, 0, 0.4); }
+        .risk-chip.red { background: var(--risk-red); box-shadow: 0 1px 4px rgba(158, 58, 42, 0.3); }
+        .risk-chip.red.highlighted { box-shadow: 0 0 0 2px var(--navy), 0 2px 8px rgba(158, 58, 42, 0.4); }
 
         .matrix-axis-label {
             text-align: center;
             font-family: var(--font-mono);
-            font-size: 0.62rem;
-            font-weight: 600;
+            font-size: 0.66rem;
+            font-weight: 500;
             color: var(--text-tertiary);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -591,22 +617,23 @@
         /* ── Risk Summary ── */
         .risk-summary {
             display: flex;
-            gap: 1.25rem;
-            padding: 0.75rem 1.25rem;
-            background: var(--surface-raised);
+            gap: 1rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--surface-sunken);
             border-bottom: 1px solid var(--border-subtle);
         }
         .summary-stat {
             display: flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 0.3rem;
+            font-family: var(--font-mono);
             font-size: 0.78rem;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-primary);
         }
         .summary-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
+            width: 7px; height: 7px;
+            border-radius: 2px;
         }
         .summary-dot.red { background: var(--risk-red); }
         .summary-dot.yellow { background: var(--risk-yellow); }
@@ -619,7 +646,7 @@
         .table-actions {
             display: flex;
             gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
+            padding: 0.6rem 1.25rem;
             border-bottom: 1px solid var(--border-subtle);
             flex-wrap: wrap;
         }
@@ -627,18 +654,19 @@
         .risk-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
+            font-size: 0.84rem;
+            line-height: 1.45;
         }
         .risk-table thead th {
             background: var(--surface-sunken);
             color: var(--text-tertiary);
-            padding: 0.6rem 0.75rem;
+            padding: 0.55rem 0.7rem;
             text-align: left;
             font-family: var(--font-mono);
             font-weight: 500;
-            font-size: 0.63rem;
+            font-size: 0.66rem;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             white-space: nowrap;
             position: sticky;
             top: 0;
@@ -646,22 +674,22 @@
         }
         .risk-table tbody tr {
             border-bottom: 1px solid var(--border-subtle);
-            transition: background 0.15s ease;
+            transition: background 0.1s ease;
         }
-        .risk-table tbody tr:hover { background: rgba(0, 32, 91, 0.02); }
-        .risk-table tbody tr.highlighted { background: rgba(59, 130, 246, 0.06); }
-        .risk-table tbody td { padding: 0.6rem 0.75rem; vertical-align: top; }
+        .risk-table tbody tr:hover { background: rgba(0, 32, 91, 0.025); }
+        .risk-table tbody tr.highlighted { background: rgba(36, 87, 135, 0.06); }
+        .risk-table tbody td { padding: 0.5rem 0.7rem; vertical-align: top; }
         .risk-table .risk-id {
             font-family: var(--font-mono);
-            font-weight: 600;
+            font-weight: 500;
             text-align: center;
-            width: 38px;
+            width: 36px;
             color: var(--text-tertiary);
-            font-size: 0.76rem;
+            font-size: 0.78rem;
         }
         .risk-table .risk-category-cell {
             font-weight: 600;
-            font-size: 0.74rem;
+            font-size: 0.8rem;
             white-space: nowrap;
             color: var(--text-secondary);
         }
@@ -671,7 +699,7 @@
             border: 1px solid var(--border-medium);
             border-radius: var(--radius-sm);
             font-family: var(--font-body);
-            font-size: 0.76rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-primary);
             background: var(--white);
@@ -681,82 +709,96 @@
         .risk-table select:focus { outline: none; border-color: var(--accent-blue); box-shadow: var(--shadow-glow-blue); }
         .risk-table input[type="text"] {
             padding: 0.3rem 0.45rem;
-            border: 1px solid var(--border-medium);
+            border: 1px solid transparent;
             border-radius: var(--radius-sm);
             font-family: var(--font-body);
-            font-size: 0.76rem;
+            font-size: 0.8rem;
             color: var(--text-primary);
             width: 110px;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: transparent;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
-        .risk-table input[type="text"]:focus { outline: none; border-color: var(--accent-blue); box-shadow: var(--shadow-glow-blue); }
+        .risk-table input[type="text"]:hover { border-color: var(--border-medium); background: var(--white); }
+        .risk-table input[type="text"]:focus { outline: none; border-color: var(--accent-blue); box-shadow: var(--shadow-glow-blue); background: var(--white); }
         .risk-level-badge {
-            display: inline-block;
-            padding: 0.2rem 0.55rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.18rem 0.55rem;
             border-radius: 3px;
             font-family: var(--font-mono);
-            font-size: 0.63rem;
+            font-size: 0.66rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.04em;
+        }
+        .risk-level-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 2px;
+            flex-shrink: 0;
         }
         .risk-level-badge.green { background: var(--risk-green-soft); color: var(--risk-green); }
+        .risk-level-badge.green::before { background: var(--risk-green); }
         .risk-level-badge.yellow { background: var(--risk-yellow-soft); color: var(--risk-yellow); }
+        .risk-level-badge.yellow::before { background: var(--risk-yellow); }
         .risk-level-badge.red { background: var(--risk-red-soft); color: var(--risk-red); }
-        .mitigation-text { font-size: 0.78rem; line-height: 1.5; min-width: 160px; color: var(--text-secondary); }
-        .root-cause-text { margin-top: 0.3rem; font-size: 0.72rem; color: var(--text-tertiary); line-height: 1.45; }
+        .risk-level-badge.red::before { background: var(--risk-red); }
+        .mitigation-text { font-size: 0.82rem; line-height: 1.5; min-width: 160px; color: var(--text-secondary); }
+        .root-cause-text { margin-top: 0.2rem; font-size: 0.76rem; color: var(--text-tertiary); line-height: 1.45; font-style: italic; }
 
         /* ── Treatment Priority ── */
         .priority-section { display: none; }
         .priority-section.visible { display: block; }
 
         .priority-list {
-            padding: 0.5rem 1.25rem 1.25rem;
+            padding: 0.25rem 1.25rem 1rem;
         }
         .priority-item {
             display: grid;
-            grid-template-columns: 32px 1fr auto;
-            gap: 0.75rem;
+            grid-template-columns: 26px 1fr auto;
+            gap: 0.65rem;
             align-items: start;
-            padding: 0.85rem 0;
+            padding: 0.65rem 0;
             border-bottom: 1px solid var(--border-subtle);
         }
         .priority-item:last-child { border-bottom: none; }
         .priority-rank {
-            width: 28px; height: 28px;
-            border-radius: 50%;
+            width: 26px; height: 26px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-mono);
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--white);
+            font-size: 0.72rem;
+            font-weight: 600;
             flex-shrink: 0;
         }
-        .priority-rank.critical { background: var(--risk-red); }
-        .priority-rank.important { background: var(--risk-yellow); }
-        .priority-rank.monitor { background: var(--risk-green); }
+        .priority-rank.critical { background: var(--risk-red-soft); color: var(--risk-red); }
+        .priority-rank.important { background: var(--risk-yellow-soft); color: var(--risk-yellow); }
+        .priority-rank.monitor { background: var(--risk-green-soft); color: var(--risk-green); }
         .priority-body { min-width: 0; }
         .priority-risk-name {
+            font-family: var(--font-display);
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.88rem;
             color: var(--text-primary);
-            margin-bottom: 0.15rem;
+            margin-bottom: 0.1rem;
+            letter-spacing: -0.01em;
         }
         .priority-action {
-            font-size: 0.76rem;
+            font-size: 0.82rem;
             color: var(--text-secondary);
             line-height: 1.5;
         }
         .priority-badge {
-            padding: 0.2rem 0.5rem;
+            padding: 0.18rem 0.5rem;
             border-radius: 3px;
             font-family: var(--font-mono);
-            font-size: 0.6rem;
+            font-size: 0.66rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.04em;
             flex-shrink: 0;
             margin-top: 2px;
         }
@@ -771,7 +813,7 @@
             color: var(--risk-red);
             padding: 0.6rem 0.85rem;
             border-radius: var(--radius-sm);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
             border-left: 3px solid var(--risk-red);
         }
@@ -779,35 +821,46 @@
 
         /* ── Footer ── */
         .footer {
-            background: var(--navy-deep);
-            color: var(--text-on-dark-muted);
+            background: var(--surface-sunken);
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-tertiary);
             padding: 1rem 2rem;
             margin-top: 1.5rem;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 1rem;
-            font-size: 0.68rem;
+            font-size: 0.76rem;
         }
         .footer a {
-            color: rgba(255, 255, 255, 0.75);
+            color: var(--text-secondary);
             text-decoration: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid var(--border-medium);
             transition: border-color 0.2s, color 0.2s;
         }
-        .footer a:hover { border-color: rgba(255, 255, 255, 0.6); color: var(--white); }
+        .footer a:hover { border-color: var(--accent-blue); color: var(--text-primary); }
 
         /* ── Animations ── */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .input-panel { animation: fadeUp 0.45s ease both 0.1s; }
-        .output-panel > * { animation: fadeUp 0.45s ease both; }
-        .output-panel > *:nth-child(1) { animation-delay: 0.12s; }
-        .output-panel > *:nth-child(2) { animation-delay: 0.2s; }
-        .output-panel > *:nth-child(3) { animation-delay: 0.28s; }
-        .output-panel > *:nth-child(4) { animation-delay: 0.36s; }
+        .input-panel { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both 0.05s; }
+
+        /* Scroll-triggered reveal */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        [data-reveal].is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-reveal], .input-panel { opacity: 1; transform: none; transition: none; animation: none; }
+        }
 
         /* ── Divider ── */
         .section-divider {
@@ -815,9 +868,10 @@
             align-items: center;
             gap: 0.65rem;
             color: var(--text-tertiary);
-            font-size: 0.62rem;
-            font-weight: 600;
-            letter-spacing: 0.12em;
+            font-family: var(--font-mono);
+            font-size: 0.66rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }
         .section-divider::before,
@@ -825,29 +879,29 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--border-subtle);
+            background: var(--border-medium);
         }
 
         /* ── File Upload ── */
         .file-upload-area {
-            border: 2px dashed var(--border-medium);
+            border: 1.5px dashed var(--border-medium);
             border-radius: var(--radius-md);
-            padding: 1rem;
+            padding: 0.85rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: var(--surface-raised);
+            background: var(--surface-sunken);
         }
         .file-upload-area:hover, .file-upload-area.dragover {
             border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.04);
+            background: rgba(36, 87, 135, 0.04);
         }
         .file-upload-area .upload-icon {
             color: var(--text-tertiary);
             margin-bottom: 0.3rem;
         }
         .file-upload-area .upload-text {
-            font-size: 0.76rem;
+            font-size: 0.82rem;
             color: var(--text-secondary);
             line-height: 1.5;
         }
@@ -856,7 +910,7 @@
             cursor: pointer;
         }
         .file-upload-area .upload-hint {
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             color: var(--text-tertiary);
             margin-top: 0.2rem;
         }
@@ -874,13 +928,13 @@
             background: var(--surface-sunken);
             border: 1px solid var(--border-medium);
             border-radius: 100px;
-            font-size: 0.68rem;
+            font-size: 0.76rem;
             color: var(--text-secondary);
             font-weight: 500;
         }
         .file-chip .file-size {
             color: var(--text-tertiary);
-            font-size: 0.6rem;
+            font-size: 0.68rem;
         }
         .file-chip .file-remove {
             width: 14px; height: 14px;
@@ -923,18 +977,17 @@
         }
         .dimension-tab {
             flex: 1;
-            padding: 0.35rem 0.5rem;
+            padding: 0.32rem 0.5rem;
             border: none;
             background: transparent;
             font-family: var(--font-body);
-            font-size: 0.65rem;
+            font-size: 0.74rem;
             font-weight: 600;
             color: var(--text-tertiary);
             cursor: pointer;
-            border-radius: calc(var(--radius-sm) - 2px);
+            border-radius: calc(var(--radius-sm) - 1px);
             transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.02em;
         }
         .dimension-tab:hover { color: var(--text-secondary); }
         .dimension-tab.active {
@@ -968,7 +1021,7 @@
             font-family: var(--font-body);
             line-height: 1;
         }
-        .info-icon:hover, .info-icon.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+        .info-icon:hover, .info-icon.active { background: var(--navy); color: var(--text-on-dark); border-color: var(--navy); }
         .info-icon .tooltip {
             display: none;
             position: absolute;
@@ -976,7 +1029,7 @@
             left: 50%;
             transform: translateX(-50%);
             background: var(--navy-deep);
-            color: rgba(255,255,255,0.92);
+            color: var(--text-on-dark);
             font-size: 0.72rem;
             font-weight: 400;
             text-transform: none;
@@ -988,7 +1041,7 @@
             min-width: 180px;
             white-space: normal;
             z-index: 100;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0, 32, 91, 0.18);
             pointer-events: none;
         }
         .info-icon .tooltip::after {
@@ -1006,17 +1059,196 @@
         @media print {
             body { background: white; }
             body::before { display: none; }
-            .header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-            .input-panel, .table-actions, .progress-feed { display: none !important; }
-            .footer { background: none; color: var(--text-tertiary); }
+            .header { print-color-adjust: exact; -webkit-print-color-adjust: exact; background: white; border-bottom: 1px solid #ccc; }
+            .header h1 { color: #2C2825; }
+            .input-panel, .table-actions, .progress-feed, .lang-toggle, .reassess-banner { display: none !important; }
+            .footer { background: none; color: var(--text-tertiary); border-top: 1px solid #ddd; }
             .app-container { grid-template-columns: 1fr; padding: 0; }
             .card { box-shadow: none; break-inside: avoid; border-color: #ddd; }
             .risk-table thead th,
-            .matrix-cell, .risk-chip, .risk-level-badge, .summary-dot, .priority-rank {
+            .matrix-cell, .risk-chip, .risk-level-badge, .risk-level-badge::before, .summary-dot, .priority-rank {
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
             }
+            [data-reveal] { opacity: 1; transform: none; }
         }
+
+        /* ── CSV Import Upload Zone ── */
+        .csv-import-area {
+            border: 1.5px dashed var(--border-medium);
+            border-radius: var(--radius-md);
+            padding: 0.85rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface-sunken);
+        }
+        .csv-import-area:hover, .csv-import-area.dragover {
+            border-color: var(--accent-blue);
+            background: rgba(36, 87, 135, 0.04);
+        }
+        .csv-import-area .upload-icon { color: var(--text-tertiary); margin-bottom: 0.3rem; }
+        .csv-import-area .upload-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+        .csv-import-area .upload-text strong { color: var(--accent-blue); cursor: pointer; }
+        .csv-import-area .upload-hint { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 0.2rem; }
+        .csv-import-error {
+            font-size: 0.78rem;
+            color: var(--risk-red);
+            margin-top: 0.35rem;
+            display: none;
+        }
+
+        /* ── Re-Assessment Banner ── */
+        .reassess-banner {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            gap: 0.75rem;
+            flex-direction: column;
+        }
+        .reassess-banner.visible {
+            display: flex;
+        }
+        .reassess-banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .reassess-banner-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+        }
+        .reassess-banner-info svg { color: var(--accent-blue); flex-shrink: 0; }
+        .reassess-banner-info strong { color: var(--text-primary); font-weight: 600; }
+        .btn-reassess {
+            background: var(--accent-blue);
+            color: var(--text-on-dark);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .btn-reassess:hover { background: var(--accent-hover); box-shadow: 0 2px 8px rgba(36, 87, 135, 0.25); }
+        .btn-reassess:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-reassess .spinner {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.65s linear infinite;
+            display: none;
+        }
+        .btn-reassess.loading .spinner { display: block; }
+        .btn-reassess.loading .btn-label { display: none; }
+        .reassess-summary {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            padding: 0.6rem 0.75rem;
+            background: var(--surface-sunken);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--accent-blue);
+            display: none;
+        }
+        .reassess-summary.visible { display: block; }
+
+        /* ── Status Badges ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.12rem 0.4rem;
+            border-radius: 3px;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 0.35rem;
+            vertical-align: middle;
+        }
+        .status-badge.new-badge {
+            background: rgba(36, 87, 135, 0.12);
+            color: var(--accent-blue);
+        }
+        .status-badge.close-badge {
+            background: var(--risk-red-soft);
+            color: var(--risk-red);
+        }
+
+        /* ── AI Comment Block ── */
+        .ai-comment-block {
+            margin-top: 0.35rem;
+            padding: 0.35rem 0.55rem;
+            background: rgba(36, 87, 135, 0.05);
+            border-left: 2px solid var(--accent-blue);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .ai-comment-block strong {
+            color: var(--accent-blue);
+            font-weight: 600;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        /* ── Close/Keep Row Styling ── */
+        .risk-table tbody tr.risk-row-close {
+            opacity: 0.55;
+        }
+        .risk-table tbody tr.risk-row-close td {
+            text-decoration: line-through;
+            text-decoration-color: var(--text-tertiary);
+        }
+        .risk-table tbody tr.risk-row-close td:last-child,
+        .risk-table tbody tr.risk-row-close .risk-id,
+        .risk-table tbody tr.risk-row-close .status-badge {
+            text-decoration: none;
+        }
+        .close-actions {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 0.3rem;
+        }
+        .btn-keep, .btn-remove {
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.15s;
+        }
+        .btn-keep {
+            background: var(--risk-green-soft);
+            color: var(--risk-green);
+            border-color: rgba(26, 122, 82, 0.2);
+        }
+        .btn-keep:hover { background: var(--risk-green); color: var(--white); }
+        .btn-remove {
+            background: var(--risk-red-soft);
+            color: var(--risk-red);
+            border-color: rgba(176, 58, 46, 0.2);
+        }
+        .btn-remove:hover { background: var(--risk-red); color: var(--white); }
     </style>
 </head>
 <body>
@@ -1035,9 +1267,13 @@
 <main class="app-container">
 
     <!-- Input Panel -->
-    <aside class="input-panel card">
-        <div class="card-header-bar">
+    <div class="input-panel card">
+        <div class="card-header-bar" id="input-panel-header" onclick="toggleInputPanel()">
             <span class="card-title" data-i18n="input.cardTitle">Project Configuration</span>
+            <span class="panel-toggle-hint" id="panel-toggle-hint">
+                <span data-i18n="input.editConfig">Edit configuration</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
         </div>
         <div class="card-body">
             <div class="field-group">
@@ -1087,20 +1323,21 @@
             <div class="advanced-section" id="adv-section">
                 <div class="advanced-inner">
                     <div>
-                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.preset.label">Framework Preset</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.preset.tooltip">Pre-configured threshold definitions and categories from industry-standard risk frameworks.</span></span></span></label>
+                        <label style="font-family:var(--font-display);font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:0.4rem;letter-spacing:-0.01em;"><span class="label-with-info"><span data-i18n="advanced.preset.label">Framework Preset</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.preset.tooltip">Pre-configured threshold definitions and categories from industry-standard risk frameworks.</span></span></span></label>
                         <div class="framework-preset" id="framework-presets">
                             <button class="preset-chip active" data-preset="dnv" onclick="setPreset('dnv')" data-i18n-title="presets.dnv.title" title="DNV Energy Systems framework with NOK-based financial thresholds">DNV ES</button>
+                            <button class="preset-chip" data-preset="iso21502" onclick="setPreset('iso21502')" data-i18n-title="presets.iso21502.title" title="ISO 21502:2020 project management guidance with governance-oriented risk categories">ISO 21502</button>
                             <button class="preset-chip" data-preset="iso" onclick="setPreset('iso')" data-i18n-title="presets.iso.title" title="ISO 31000:2018 generic risk management standard with qualitative thresholds">ISO 31000</button>
                             <button class="preset-chip" data-preset="pmi" onclick="setPreset('pmi')" data-i18n-title="presets.pmi.title" title="PMI PMBOK risk framework with budget/schedule impact thresholds">PMI / PMBOK</button>
                             <button class="preset-chip" data-preset="custom" onclick="setPreset('custom')" data-i18n-title="presets.custom.title" title="Define your own thresholds and categories, optionally upload a framework document">Custom</button>
                         </div>
                     </div>
                     <div>
-                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.consequence.label">Consequence Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.consequence.tooltip">Define what High, Medium, and Low consequence mean for this project across cost, time, and quality dimensions.</span></span></span></label>
+                        <label style="font-family:var(--font-display);font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:0.4rem;letter-spacing:-0.01em;"><span class="label-with-info"><span data-i18n="advanced.consequence.label">Consequence Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.consequence.tooltip">Define what High, Medium, and Low consequence mean for this project across cost, time, and quality dimensions.</span></span></span></label>
                         <div class="dimension-tabs" id="dimension-tabs">
                             <button class="dimension-tab active" data-dim="cost" onclick="switchDimension('cost')" data-i18n="advanced.dimensions.cost">Cost</button>
                             <button class="dimension-tab" data-dim="time" onclick="switchDimension('time')" data-i18n="advanced.dimensions.time">Time</button>
-                            <button class="dimension-tab" data-dim="quality" onclick="switchDimension('quality')" data-i18n="advanced.dimensions.quality">Quality</button>
+                            <button class="dimension-tab" data-dim="quality" onclick="switchDimension('quality')" data-i18n="advanced.dimensions.performance">Performance</button>
                         </div>
                         <div class="dimension-panel active" id="dim-cost">
                             <div class="framework-grid">
@@ -1111,21 +1348,21 @@
                         </div>
                         <div class="dimension-panel" id="dim-time">
                             <div class="framework-grid">
-                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-time-high" type="text" value="> 2 months delay"></div>
-                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-time-med" type="text" value="2–4 weeks delay"></div>
-                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-time-low" type="text" value="< 2 weeks delay"></div>
+                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-time-high" type="text" value="More than one month delay on finish date"></div>
+                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-time-med" type="text" value="Delay on major milestones but no impact on finish date"></div>
+                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-time-low" type="text" value="Delay in individual activities without impact on major milestone or finish date"></div>
                             </div>
                         </div>
                         <div class="dimension-panel" id="dim-quality">
                             <div class="framework-grid">
-                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-quality-high" type="text" value="Major quality failure, rework required"></div>
-                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-quality-med" type="text" value="Noticeable quality reduction"></div>
-                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-quality-low" type="text" value="Minor quality deviation"></div>
+                                <div><label data-i18n="levels.high">High</label><input id="fw-cons-quality-high" type="text" value="Major faults requiring shutdown for revision causing unacceptable delays for customers"></div>
+                                <div><label data-i18n="levels.medium">Medium</label><input id="fw-cons-quality-med" type="text" value="Faults with minor impact on system performance causing minor delays for some customers"></div>
+                                <div><label data-i18n="levels.low">Low</label><input id="fw-cons-quality-low" type="text" value="Minor faults without effect on system performance"></div>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;"><span class="label-with-info"><span data-i18n="advanced.likelihood.label">Likelihood Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.likelihood.tooltip">Define the probability thresholds for High, Medium, and Low likelihood of a risk event occurring.</span></span></span></label>
+                        <label style="font-family:var(--font-display);font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:0.4rem;letter-spacing:-0.01em;"><span class="label-with-info"><span data-i18n="advanced.likelihood.label">Likelihood Thresholds</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="advanced.likelihood.tooltip">Define the probability thresholds for High, Medium, and Low likelihood of a risk event occurring.</span></span></span></label>
                         <div class="framework-grid">
                             <div><label data-i18n="levels.high">High</label><input id="fw-like-high" type="text" value="> 70%"></div>
                             <div><label data-i18n="levels.medium">Medium</label><input id="fw-like-med" type="text" value="30%–70%"></div>
@@ -1137,7 +1374,7 @@
                         <input type="text" id="fw-categories" value="Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder" style="font-size:0.76rem;">
                     </div>
                     <div class="custom-framework-upload" id="custom-framework-section">
-                        <label style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-tertiary);display:block;margin-bottom:0.4rem;" data-i18n="advanced.customFramework.label">Custom Framework Document</label>
+                        <label style="font-family:var(--font-display);font-size:0.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:0.4rem;letter-spacing:-0.01em;" data-i18n="advanced.customFramework.label">Custom Framework Document</label>
                         <div class="file-upload-area" id="framework-file-upload"
                              ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)"
                              ondrop="handleFileDrop(event, 'framework')" onclick="document.getElementById('framework-file-input').click()">
@@ -1166,24 +1403,43 @@
 
             <div class="section-divider" data-i18n="input.or">or</div>
 
+            <!-- CSV Import Zone -->
+            <div class="csv-import-area" id="csv-import-area"
+                 ondragover="handleCSVDragOver(event)" ondragleave="handleCSVDragLeave(event)"
+                 ondrop="handleCSVDrop(event)" onclick="document.getElementById('csv-import-input').click()">
+                <input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="handleCSVFileSelect(event)">
+                <div class="upload-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div class="upload-text" data-i18n-html="csvImport.dropText">Upload existing risk register (<strong>.csv</strong>)</div>
+                <div class="upload-hint" data-i18n="csvImport.hint">Continue from a previous assessment</div>
+            </div>
+            <div class="csv-import-error" id="csv-import-error"></div>
+
+            <div class="section-divider" data-i18n="input.or">or</div>
+
             <button class="btn-ghost" id="load-example-btn" onclick="loadExample()" style="align-self: center;" data-i18n="input.loadExample">
                 Load Example Project
             </button>
         </div>
-    </aside>
+    </div>
 
     <!-- Output Panel -->
     <section class="output-panel">
-        <div class="card output-placeholder" id="placeholder">
-            <div class="card-body">
-                <div class="placeholder-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                    </svg>
+
+        <!-- Re-Assessment Banner -->
+        <div class="reassess-banner" id="reassess-banner">
+            <div class="reassess-banner-header">
+                <div class="reassess-banner-info" id="reassess-banner-info">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span id="reassess-banner-text"></span>
                 </div>
-                <h3 data-i18n="output.placeholder.title">Ready to Assess Risk</h3>
-                <p data-i18n="output.placeholder.description">Configure your project and generate an AI-powered risk register following ISO 31000 and your chosen risk framework.</p>
+                <button class="btn-reassess" id="reassess-btn" onclick="reassessRisks()">
+                    <span class="btn-label" data-i18n="reassess.button">Run AI Re-Assessment</span>
+                    <div class="spinner"></div>
+                </button>
             </div>
+            <div class="reassess-summary" id="reassess-summary"></div>
         </div>
 
         <!-- Risk Matrix -->
@@ -1271,6 +1527,9 @@ let activePreset = 'dnv';
 let projectAttachedFiles = [];
 let customFrameworkFile = null;
 let currentLang = localStorage.getItem('lang') || 'en';
+let isImportedRegister = false;
+let importedRegisterName = '';
+let reassessmentSummary = '';
 const API_KEY = localStorage.getItem('anthropic_api_key') || prompt('Enter your Anthropic API key:') || '';
 if (API_KEY && !localStorage.getItem('anthropic_api_key')) localStorage.setItem('anthropic_api_key', API_KEY);
 
@@ -1282,6 +1541,7 @@ const LANG = {
     header: { subtitle: 'AI-Powered Project Risk Assessment' },
     input: {
       cardTitle: 'Project Configuration',
+      editConfig: 'Edit configuration',
       category: {
         label: 'Category',
         tooltip: 'Determines the overall risk appetite. Complex projects get stricter assessment criteria.',
@@ -1318,7 +1578,7 @@ const LANG = {
         label: 'Consequence Thresholds',
         tooltip: 'Define what High, Medium, and Low consequence mean for this project across cost, time, and quality dimensions.'
       },
-      dimensions: { cost: 'Cost', time: 'Time', quality: 'Quality' },
+      dimensions: { cost: 'Cost', time: 'Time', performance: 'Performance' },
       likelihood: {
         label: 'Likelihood Thresholds',
         tooltip: 'Define the probability thresholds for High, Medium, and Low likelihood of a risk event occurring.'
@@ -1336,6 +1596,7 @@ const LANG = {
     },
     presets: {
       dnv: { title: 'DNV Energy Systems framework with NOK-based financial thresholds' },
+      iso21502: { title: 'ISO 21502:2020 project management guidance with governance-oriented risk categories' },
       iso: { title: 'ISO 31000:2018 generic risk management standard with qualitative thresholds' },
       pmi: { title: 'PMI PMBOK risk framework with budget/schedule impact thresholds' },
       custom: { title: 'Define your own thresholds and categories, optionally upload a framework document' }
@@ -1343,10 +1604,17 @@ const LANG = {
     presetValues: {
       dnv: {
         consCostHigh: '> 500K NOK', consCostMed: '50K–500K NOK', consCostLow: '< 50K NOK',
-        consTimeHigh: '> 2 months delay', consTimeMed: '2–4 weeks delay', consTimeLow: '< 2 weeks delay',
-        consQualityHigh: 'Major quality failure, rework required', consQualityMed: 'Noticeable quality reduction', consQualityLow: 'Minor quality deviation',
+        consTimeHigh: 'More than one month delay on finish date', consTimeMed: 'Delay on major milestones but no impact on finish date', consTimeLow: 'Delay in individual activities without impact on major milestone or finish date',
+        consQualityHigh: 'Major faults requiring shutdown for revision causing unacceptable delays for customers', consQualityMed: 'Faults with minor impact on system performance causing minor delays for some customers', consQualityLow: 'Minor faults without effect on system performance',
         likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
         categories: 'Scope, Schedule, Resource, Financial, Technical, Contractual, External, Health & Safety, Quality, Stakeholder'
+      },
+      iso21502: {
+        consCostHigh: '> 15% budget overrun or critical funding gap', consCostMed: '5–15% budget overrun', consCostLow: '< 5% budget variance',
+        consTimeHigh: 'Critical path delay > 10% of planned duration, missed governance gate', consTimeMed: 'Delay on milestone but recoverable within schedule reserve', consTimeLow: 'Minor activity delay, no milestone impact',
+        consQualityHigh: 'Deliverables fail acceptance criteria, benefits realisation at risk', consQualityMed: 'Reduced deliverable quality requiring rework or scope adjustment', consQualityLow: 'Minor quality deviation within tolerance',
+        likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
+        categories: 'Governance, Scope & Requirements, Schedule, Cost & Funding, Resources & Competence, Stakeholder & Communication, Quality & Deliverables, Procurement & Supply Chain, External & Regulatory, Benefits Realisation'
       },
       iso: {
         consCostHigh: 'Severe financial impact', consCostMed: 'Moderate financial impact', consCostLow: 'Minor financial impact',
@@ -1364,10 +1632,6 @@ const LANG = {
       }
     },
     output: {
-      placeholder: {
-        title: 'Ready to Assess Risk',
-        description: 'Configure your project and generate an AI-powered risk register following ISO 31000 and your chosen risk framework.'
-      },
       matrix: { title: 'Risk Matrix', subtitle: 'Likelihood vs. Consequence', axis: 'Consequence' },
       priority: { title: 'Treatment Priority', subtitle: 'ISO 31000 Risk Treatment Plan' },
       register: { title: 'Risk Register' },
@@ -1406,7 +1670,88 @@ const LANG = {
     rootCause: 'Root cause:',
     removeFile: 'Remove file',
     csv: { headers: ['ID','Category','Description','Likelihood','Consequence','Risk Level','Root Cause','Mitigating Action','Responsible'] },
+    csvImport: {
+      dropText: 'Upload existing risk register (<strong>.csv</strong>)',
+      hint: 'Continue from a previous assessment',
+      empty: 'The CSV file is empty or contains no data rows.',
+      noHeaders: 'Could not find recognizable column headers in the CSV file.',
+      noRisks: 'No valid risks could be parsed from the CSV file.',
+      parseError: 'Error parsing CSV file: ',
+      bannerText: 'Imported from <strong>{filename}</strong> — {count} risks loaded',
+    },
+    reassess: {
+      button: 'Run AI Re-Assessment',
+      noDescription: 'Please fill in the project description before running AI re-assessment.',
+      statusNew: 'NEW',
+      statusClose: 'CLOSE?',
+      aiComment: 'AI Assessment',
+      keep: 'Keep',
+      remove: 'Remove',
+      summaryLabel: 'AI Summary',
+    },
+    reassessProgress: [
+      { text: '<strong>Initializing</strong> — Loading re-assessment framework', delay: 0 },
+      { text: '<strong>Register Analysis</strong> — Reviewing {COUNT} existing risks', delay: 800 },
+      { text: '<strong>Mitigation Review</strong> — Evaluating effectiveness of current mitigations', delay: 2500 },
+      { text: '<strong>Risk Re-Scoring</strong> — Updating likelihood and consequence assessments', delay: 4200 },
+      { text: '<strong>Gap Analysis</strong> — Identifying new emerging risks', delay: 6500 },
+      { text: '<strong>Closure Review</strong> — Recommending risks for closure', delay: 8500 },
+      { text: '<strong>Compiling Results</strong> — Merging updates into risk register', delay: 10500 }
+    ],
+    reassessProgressComplete: '<strong>Complete</strong> — Re-assessment finished',
     matrixCorner: 'LIKELIHOOD /<br>CONSEQUENCE',
+    reassessSystemPrompt: `You are a senior risk management consultant performing a periodic re-assessment of an existing project risk register. You follow ISO 31000:2018 and IEC 31010:2019. You are applying the {frameworkName} risk framework.
+
+Your task is to review and update an existing risk register. You must:
+1. Review each existing risk — evaluate whether the current likelihood/consequence scores are still accurate, update mitigations if needed
+2. Recommend risks for closure if they are fully mitigated or no longer relevant (set status to "close")
+3. Identify 2–5 NEW risks that may have emerged since the last assessment
+4. Provide a brief ai_comment for each existing risk explaining your assessment
+5. Write a summary of how the overall risk profile has evolved
+
+Risk Matrix Definitions ({frameworkName}):
+
+CONSEQUENCE (use worst-case across all three dimensions):
+
+Cost:
+- High: {consCostHigh}
+- Medium: {consCostMed}
+- Low: {consCostLow}
+
+Time:
+- High: {consTimeHigh}
+- Medium: {consTimeMed}
+- Low: {consTimeLow}
+
+Performance:
+- High: {consQualityHigh}
+- Medium: {consQualityMed}
+- Low: {consQualityLow}
+
+LIKELIHOOD:
+- High: {likeHigh}
+- Medium: {likeMed}
+- Low: {likeLow}
+
+Output ONLY valid JSON — no markdown fences, no commentary. Use this exact structure:
+{
+  "existing_risks": [
+    { "id": 1, "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "mitigation": "updated mitigation text", "status": "active|close", "ai_comment": "brief assessment comment" }
+  ],
+  "new_risks": [
+    { "id": 11, "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "why this new risk was identified" }
+  ],
+  "summary": "Overall assessment of how the risk profile has evolved"
+}`,
+    reassessUserPrompt: `Project Category: {category}
+
+Project Description:
+{description}
+
+CURRENT RISK REGISTER:
+{registerTable}
+
+Based on the project details and the current risk register above, perform a comprehensive re-assessment. Review each existing risk, recommend closures where appropriate, and identify new emerging risks. Output valid JSON only.`,
     systemPrompt: `You are a senior risk management consultant specialising in energy infrastructure, industrial projects, and project management. You follow ISO 31000:2018 (Risk Management — Guidelines) and IEC 31010:2019 (Risk Assessment Techniques) methodologies rigorously. You are applying the {frameworkName} risk framework.
 
 Your task is to produce a comprehensive project risk register. You must:
@@ -1430,7 +1775,7 @@ Time:
 - Medium: {consTimeMed}
 - Low: {consTimeLow}
 
-Quality:
+Performance:
 - High: {consQualityHigh}
 - Medium: {consQualityMed}
 - Low: {consQualityLow}
@@ -1492,6 +1837,7 @@ Team & Resources:
     header: { subtitle: 'AI-drevet prosjektrisikovurdering' },
     input: {
       cardTitle: 'Prosjektkonfigurasjon',
+      editConfig: 'Rediger konfigurasjon',
       category: {
         label: 'Kategori',
         tooltip: 'Bestemmer den overordnede risikoappetitt. Komplekse prosjekter får strengere vurderingskriterier.',
@@ -1528,7 +1874,7 @@ Team & Resources:
         label: 'Konsekvensterskler',
         tooltip: 'Definer hva Høy, Middels og Lav konsekvens betyr for dette prosjektet på tvers av kostnad, tid og kvalitet.'
       },
-      dimensions: { cost: 'Kostnad', time: 'Tid', quality: 'Kvalitet' },
+      dimensions: { cost: 'Kostnad', time: 'Tid', performance: 'Ytelse' },
       likelihood: {
         label: 'Sannsynlighetsterskler',
         tooltip: 'Definer sannsynlighetersklene for Høy, Middels og Lav sannsynlighet for at en risikohendelse inntreffer.'
@@ -1546,6 +1892,7 @@ Team & Resources:
     },
     presets: {
       dnv: { title: 'DNV Energy Systems-rammeverk med NOK-baserte finansielle terskler' },
+      iso21502: { title: 'ISO 21502:2020 prosjektledelsesstandard med styringsorienterte risikokategorier' },
       iso: { title: 'ISO 31000:2018 generisk risikostyringsstandard med kvalitative terskler' },
       pmi: { title: 'PMI PMBOK-risikorammeverk med budsjett-/tidsplanterskler' },
       custom: { title: 'Definer egne terskler og kategorier, eventuelt last opp et rammeverksdokument' }
@@ -1553,10 +1900,17 @@ Team & Resources:
     presetValues: {
       dnv: {
         consCostHigh: '> 500K NOK', consCostMed: '50K–500K NOK', consCostLow: '< 50K NOK',
-        consTimeHigh: '> 2 måneders forsinkelse', consTimeMed: '2–4 ukers forsinkelse', consTimeLow: '< 2 ukers forsinkelse',
-        consQualityHigh: 'Alvorlig kvalitetssvikt, omarbeid nødvendig', consQualityMed: 'Merkbar kvalitetsreduksjon', consQualityLow: 'Mindre kvalitetsavvik',
+        consTimeHigh: 'Mer enn en måneds forsinkelse på sluttdato', consTimeMed: 'Forsinkelse på hovedmilepæler men ingen innvirkning på sluttdato', consTimeLow: 'Forsinkelse i enkeltaktiviteter uten innvirkning på hovedmilepæl eller sluttdato',
+        consQualityHigh: 'Alvorlige feil som krever nedstenging for revisjon og forårsaker uakseptable forsinkelser for kunder', consQualityMed: 'Feil med mindre innvirkning på systemytelse som forårsaker mindre forsinkelser for noen kunder', consQualityLow: 'Mindre feil uten effekt på systemytelse',
         likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
         categories: 'Omfang, Tidsplan, Ressurs, Finansiell, Teknisk, Kontraktuell, Ekstern, HMS, Kvalitet, Interessent'
+      },
+      iso21502: {
+        consCostHigh: '> 15% budsjettoverskridelse eller kritisk finansieringsgap', consCostMed: '5–15% budsjettoverskridelse', consCostLow: '< 5% budsjettavvik',
+        consTimeHigh: 'Kritisk vei-forsinkelse > 10% av planlagt varighet, mistet styringsport', consTimeMed: 'Forsinkelse på milepæl men gjenopprettbar innenfor tidsplanreserve', consTimeLow: 'Mindre aktivitetsforsinkelse, ingen milepælsinnvirkning',
+        consQualityHigh: 'Leveranser feiler akseptkriterier, gevinstoppnåelse truet', consQualityMed: 'Redusert leveransekvalitet som krever omarbeid eller omfangsjustering', consQualityLow: 'Mindre kvalitetsavvik innenfor toleranse',
+        likeHigh: '> 70%', likeMed: '30%–70%', likeLow: '< 30%',
+        categories: 'Styring, Omfang og krav, Tidsplan, Kostnad og finansiering, Ressurser og kompetanse, Interessent og kommunikasjon, Kvalitet og leveranser, Anskaffelse og leverandørkjede, Ekstern og regulatorisk, Gevinstoppnåelse'
       },
       iso: {
         consCostHigh: 'Alvorlig finansiell konsekvens', consCostMed: 'Moderat finansiell konsekvens', consCostLow: 'Mindre finansiell konsekvens',
@@ -1574,10 +1928,6 @@ Team & Resources:
       }
     },
     output: {
-      placeholder: {
-        title: 'Klar for risikovurdering',
-        description: 'Konfigurer prosjektet ditt og generer et AI-drevet risikoregister basert på ISO 31000 og ditt valgte risikorammeverk.'
-      },
       matrix: { title: 'Risikomatrise', subtitle: 'Sannsynlighet vs. konsekvens', axis: 'Konsekvens' },
       priority: { title: 'Behandlingsprioritet', subtitle: 'ISO 31000 risikobehandlingsplan' },
       register: { title: 'Risikoregister' },
@@ -1616,7 +1966,88 @@ Team & Resources:
     rootCause: 'Rotårsak:',
     removeFile: 'Fjern fil',
     csv: { headers: ['ID','Kategori','Beskrivelse','Sannsynlighet','Konsekvens','Risikonivå','Rotårsak','Tiltak','Ansvarlig'] },
+    csvImport: {
+      dropText: 'Last opp eksisterende risikoregister (<strong>.csv</strong>)',
+      hint: 'Fortsett fra en tidligere vurdering',
+      empty: 'CSV-filen er tom eller inneholder ingen datarader.',
+      noHeaders: 'Kunne ikke finne gjenkjennbare kolonneoverskrifter i CSV-filen.',
+      noRisks: 'Ingen gyldige risikoer kunne parses fra CSV-filen.',
+      parseError: 'Feil ved parsing av CSV-fil: ',
+      bannerText: 'Importert fra <strong>{filename}</strong> — {count} risikoer lastet',
+    },
+    reassess: {
+      button: 'Kjør AI-revurdering',
+      noDescription: 'Vennligst fyll inn prosjektbeskrivelsen før du kjører AI-revurdering.',
+      statusNew: 'NY',
+      statusClose: 'LUKK?',
+      aiComment: 'AI-vurdering',
+      keep: 'Behold',
+      remove: 'Fjern',
+      summaryLabel: 'AI-oppsummering',
+    },
+    reassessProgress: [
+      { text: '<strong>Initialiserer</strong> — Laster revurderingsrammeverk', delay: 0 },
+      { text: '<strong>Registeranalyse</strong> — Gjennomgår {COUNT} eksisterende risikoer', delay: 800 },
+      { text: '<strong>Tiltaksvurdering</strong> — Evaluerer effektiviteten av nåværende tiltak', delay: 2500 },
+      { text: '<strong>Risiko-revurdering</strong> — Oppdaterer sannsynlighets- og konsekvensvurderinger', delay: 4200 },
+      { text: '<strong>Gapanalyse</strong> — Identifiserer nye fremvoksende risikoer', delay: 6500 },
+      { text: '<strong>Lukkingsgjennomgang</strong> — Anbefaler risikoer for lukking', delay: 8500 },
+      { text: '<strong>Kompilerer resultater</strong> — Fletter oppdateringer inn i risikoregisteret', delay: 10500 }
+    ],
+    reassessProgressComplete: '<strong>Fullført</strong> — Revurdering ferdig',
     matrixCorner: 'SANNSYNLIGHET /<br>KONSEKVENS',
+    reassessSystemPrompt: `Du er en senior risikostyringsrådgiver som utfører en periodisk revurdering av et eksisterende prosjektrisikoregister. Du følger ISO 31000:2018 og IEC 31010:2019. Du anvender {frameworkName}-risikorammeverket.
+
+Din oppgave er å gjennomgå og oppdatere et eksisterende risikoregister. Du må:
+1. Gjennomgå hver eksisterende risiko — vurder om nåværende sannsynlighets-/konsekvensvurderinger fortsatt er nøyaktige, oppdater tiltak ved behov
+2. Anbefal risikoer for lukking hvis de er fullstendig håndtert eller ikke lenger relevante (sett status til "close")
+3. Identifiser 2–5 NYE risikoer som kan ha oppstått siden forrige vurdering
+4. Gi en kort ai_comment for hver eksisterende risiko som forklarer din vurdering
+5. Skriv et sammendrag av hvordan den overordnede risikoprofilen har utviklet seg
+
+Risikomatrisedefinisjonene ({frameworkName}):
+
+KONSEKVENS (bruk verste tilfelle på tvers av alle tre dimensjoner):
+
+Kostnad:
+- Høy: {consCostHigh}
+- Middels: {consCostMed}
+- Lav: {consCostLow}
+
+Tid:
+- Høy: {consTimeHigh}
+- Middels: {consTimeMed}
+- Lav: {consTimeLow}
+
+Ytelse:
+- Høy: {consQualityHigh}
+- Middels: {consQualityMed}
+- Lav: {consQualityLow}
+
+SANNSYNLIGHET:
+- Høy: {likeHigh}
+- Middels: {likeMed}
+- Lav: {likeLow}
+
+Skriv KUN gyldig JSON — ingen markdown-blokker, ingen kommentarer. Bruk denne nøyaktige strukturen:
+{
+  "existing_risks": [
+    { "id": 1, "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "mitigation": "oppdatert tiltakstekst", "status": "active|close", "ai_comment": "kort vurderingskommentar" }
+  ],
+  "new_risks": [
+    { "id": 11, "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "hvorfor denne nye risikoen ble identifisert" }
+  ],
+  "summary": "Overordnet vurdering av hvordan risikoprofilen har utviklet seg"
+}`,
+    reassessUserPrompt: `Prosjektkategori: {category}
+
+Prosjektbeskrivelse:
+{description}
+
+NÅVÆRENDE RISIKOREGISTER:
+{registerTable}
+
+Basert på prosjektdetaljene og det nåværende risikoregisteret ovenfor, utfør en omfattende revurdering. Gjennomgå hver eksisterende risiko, anbefal lukkinger der det er hensiktsmessig, og identifiser nye fremvoksende risikoer. Skriv kun gyldig JSON.`,
     systemPrompt: `Du er en senior risikostyringsrådgiver med spesialisering innen energiinfrastruktur, industriprosjekter og prosjektledelse. Du følger ISO 31000:2018 (Risikostyring — Retningslinjer) og IEC 31010:2019 (Risikovurderingsteknikker) metodikk nøye. Du anvender {frameworkName}-risikorammeverket.
 
 Din oppgave er å utarbeide et omfattende prosjektrisikoregister. Du må:
@@ -1640,7 +2071,7 @@ Tid:
 - Middels: {consTimeMed}
 - Lav: {consTimeLow}
 
-Kvalitet:
+Ytelse:
 - Høy: {consQualityHigh}
 - Middels: {consQualityMed}
 - Lav: {consQualityLow}
@@ -1764,6 +2195,7 @@ const CONSEQUENCE_SCORE = { 'High': 3, 'Medium': 2, 'Low': 1 };
    ═══════════════════════════════════════════════════ */
 const PRESET_NAMES = {
     dnv: 'DNV Energy Systems',
+    iso21502: 'ISO 21502:2020',
     iso: 'ISO 31000:2018',
     pmi: 'PMI PMBOK'
 };
@@ -1878,7 +2310,7 @@ function startProgressFeed() {
     });
 }
 
-function finishProgressFeed() {
+function finishProgressFeed(completeKey) {
     progressTimers.forEach(clearTimeout);
     progressTimers = [];
     const feed = document.getElementById('progress-feed');
@@ -1896,7 +2328,7 @@ function finishProgressFeed() {
     el.className = 'progress-step';
     el.innerHTML = `
         <div class="step-icon done"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="step-text">${T('progressComplete')}</div>
+        <div class="step-text">${T(completeKey || 'progressComplete')}</div>
         <span class="step-timestamp">${ts}</span>
     `;
     feed.appendChild(el);
@@ -2029,10 +2461,18 @@ async function generateRiskAssessment() {
             consequence: normLevel(r.consequence),
             root_cause: r.root_cause || '',
             mitigation: r.mitigation || '',
-            responsible: ''
+            responsible: '',
+            status: 'active',
+            ai_comment: ''
         }));
 
         risks.forEach(r => { r.riskLevel = calcRiskLevel(r.likelihood, r.consequence); });
+
+        // Clear import state for fresh generation
+        isImportedRegister = false;
+        importedRegisterName = '';
+        reassessmentSummary = '';
+        document.getElementById('reassess-banner').classList.remove('visible');
 
         finishProgressFeed();
         renderAll();
@@ -2062,14 +2502,59 @@ function showError(msg) {
    Rendering
    ═══════════════════════════════════════════════════ */
 function renderAll() {
-    document.getElementById('placeholder').style.display = 'none';
-    document.getElementById('matrix-section').classList.add('visible');
-    document.getElementById('priority-section').classList.add('visible');
-    document.getElementById('table-section').classList.add('visible');
+    // Collapse the input panel and show results
+    collapseInputPanel();
+    document.querySelector('.output-panel').classList.add('has-results');
+
+    const sections = ['matrix-section', 'priority-section', 'table-section'];
+    sections.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.add('visible');
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(18px)';
+        el.style.transition = 'opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+        setTimeout(() => {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 80 + i * 120);
+    });
+
     renderMatrix();
     renderSummary();
     renderPriority();
     renderTable();
+
+    // Scroll to the output after a brief delay for the collapse animation
+    setTimeout(() => {
+        document.getElementById('matrix-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 350);
+}
+
+function collapseInputPanel() {
+    const panel = document.querySelector('.input-panel');
+    const body = panel.querySelector('.card-body');
+    // Set explicit max-height from current height so transition works
+    body.style.maxHeight = body.scrollHeight + 'px';
+    // Force reflow, then collapse
+    body.offsetHeight;
+    panel.classList.add('collapsed');
+    body.style.maxHeight = '0';
+}
+
+function toggleInputPanel() {
+    const panel = document.querySelector('.input-panel');
+    const body = panel.querySelector('.card-body');
+    if (panel.classList.contains('collapsed')) {
+        // Expand
+        panel.classList.remove('collapsed');
+        body.style.maxHeight = body.scrollHeight + 'px';
+        body.style.opacity = '1';
+        // After transition, remove inline max-height so content can reflow
+        setTimeout(() => { body.style.maxHeight = ''; }, 500);
+    } else if (risks.length > 0) {
+        // Only allow collapse if results exist
+        collapseInputPanel();
+    }
 }
 
 function renderMatrix() {
@@ -2101,6 +2586,7 @@ function renderMatrix() {
             riskList.forEach(r => {
                 const chip = document.createElement('div');
                 chip.className = `risk-chip ${r.riskLevel.toLowerCase()}`;
+                if (r.status === 'close') chip.style.opacity = '0.35';
                 chip.textContent = r.id;
                 chip.title = `R${r.id}: ${r.description.substring(0, 60)}...`;
                 chip.setAttribute('role', 'button');
@@ -2116,19 +2602,20 @@ function renderMatrix() {
 }
 
 function renderSummary() {
+    const activeRisks = risks.filter(r => r.status !== 'close');
     const counts = { RED:0, YELLOW:0, GREEN:0 };
-    risks.forEach(r => counts[r.riskLevel]++);
+    activeRisks.forEach(r => counts[r.riskLevel]++);
     document.getElementById('risk-summary').innerHTML = `
         <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} ${T('summary.high')}</span>
         <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} ${T('summary.medium')}</span>
         <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} ${T('summary.low')}</span>
-        <span class="summary-stat" style="margin-left:auto;color:var(--text-tertiary);font-weight:400;font-size:0.72rem;">${risks.length} ${T('summary.risksIdentified')}</span>
+        <span class="summary-stat" style="margin-left:auto;color:var(--text-tertiary);font-weight:400;font-size:0.72rem;">${activeRisks.length} ${T('summary.risksIdentified')}</span>
     `;
 }
 
 function renderPriority() {
-    /* Sort risks by composite score: severity * (likelihood + consequence) */
-    const sorted = [...risks].sort((a, b) => {
+    /* Sort active risks by composite score: severity * (likelihood + consequence) */
+    const sorted = [...risks].filter(r => r.status !== 'close').sort((a, b) => {
         const scoreA = SEVERITY_SCORE[a.riskLevel] * (LIKELIHOOD_SCORE[a.likelihood] + CONSEQUENCE_SCORE[a.consequence]);
         const scoreB = SEVERITY_SCORE[b.riskLevel] * (LIKELIHOOD_SCORE[b.likelihood] + CONSEQUENCE_SCORE[b.consequence]);
         return scoreB - scoreA;
@@ -2163,17 +2650,40 @@ function renderTable() {
         const tr = document.createElement('tr');
         tr.id = `risk-row-${r.id}`;
         if (highlightedRiskId === r.id) tr.classList.add('highlighted');
+        if (r.status === 'close') tr.classList.add('risk-row-close');
         tr.onclick = (e) => {
-            if (e.target.tagName==='SELECT'||e.target.tagName==='INPUT') return;
+            if (e.target.tagName==='SELECT'||e.target.tagName==='INPUT'||e.target.tagName==='BUTTON') return;
             toggleHighlight(r.id);
         };
 
+        // Status badge
+        let statusBadge = '';
+        if (r.status === 'new') statusBadge = `<span class="status-badge new-badge">${T('reassess.statusNew')}</span>`;
+        else if (r.status === 'close') statusBadge = `<span class="status-badge close-badge">${T('reassess.statusClose')}</span>`;
+
+        // AI comment block
+        let aiCommentHTML = '';
+        if (r.ai_comment) {
+            aiCommentHTML = `<div class="ai-comment-block"><strong>${T('reassess.aiComment')}:</strong> ${escHTML(r.ai_comment)}</div>`;
+        }
+
+        // Close actions
+        let closeActions = '';
+        if (r.status === 'close') {
+            closeActions = `<div class="close-actions">
+                <button class="btn-keep" onclick="keepRisk(${r.id})">${T('reassess.keep')}</button>
+                <button class="btn-remove" onclick="removeRisk(${r.id})">${T('reassess.remove')}</button>
+            </div>`;
+        }
+
         tr.innerHTML = `
-            <td class="risk-id">${r.id}</td>
+            <td class="risk-id">${r.id}${statusBadge}</td>
             <td class="risk-category-cell">${escHTML(r.category)}</td>
             <td class="risk-desc">
                 <div>${escHTML(r.description)}</div>
                 ${r.root_cause ? `<div class="root-cause-text"><strong>${T('rootCause')}</strong> ${escHTML(r.root_cause)}</div>` : ''}
+                ${aiCommentHTML}
+                ${closeActions}
             </td>
             <td>
                 <select aria-label="Likelihood for risk ${r.id}" onchange="updateRisk(${r.id},'likelihood',this.value)">
@@ -2239,7 +2749,9 @@ function toggleHighlight(id) {
    ═══════════════════════════════════════════════════ */
 function exportCSV() {
     const headers = T('csv.headers');
-    const rows = risks.map(r => [
+    // Exclude risks marked for closure (user can still Keep them before export)
+    const exportRisks = risks.filter(r => r.status !== 'close');
+    const rows = exportRisks.map(r => [
         r.id, csvEscape(r.category), csvEscape(r.description),
         r.likelihood, r.consequence, r.riskLevel,
         csvEscape(r.root_cause), csvEscape(r.mitigation), csvEscape(r.responsible)
@@ -2265,6 +2777,394 @@ function escHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+}
+
+/* ═══════════════════════════════════════════════════
+   CSV Import — Parser
+   ═══════════════════════════════════════════════════ */
+function parseCSVRow(line) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (inQuotes) {
+            if (ch === '"') {
+                if (i + 1 < line.length && line[i + 1] === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                current += ch;
+            }
+        } else {
+            if (ch === '"') {
+                inQuotes = true;
+            } else if (ch === ',') {
+                fields.push(current.trim());
+                current = '';
+            } else {
+                current += ch;
+            }
+        }
+    }
+    fields.push(current.trim());
+    return fields;
+}
+
+function parseRegisterCSV(text) {
+    // Strip BOM
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) throw new Error(T('csvImport.empty'));
+
+    const headerRow = parseCSVRow(lines[0]);
+
+    // Bilingual header mapping (EN and NO)
+    const HEADER_MAP = {
+        'id': 'id', '#': 'id',
+        'category': 'category', 'kategori': 'category',
+        'description': 'description', 'beskrivelse': 'description',
+        'likelihood': 'likelihood', 'sannsynlighet': 'likelihood',
+        'consequence': 'consequence', 'konsekvens': 'consequence',
+        'risk level': 'riskLevel', 'risikonivå': 'riskLevel', 'risikoniva': 'riskLevel',
+        'root cause': 'root_cause', 'rotårsak': 'root_cause', 'rotarsak': 'root_cause',
+        'mitigating action': 'mitigation', 'tiltak': 'mitigation', 'mitigation': 'mitigation',
+        'responsible': 'responsible', 'ansvarlig': 'responsible'
+    };
+
+    // Value normalization (NO → EN)
+    const VALUE_MAP = {
+        'høy': 'High', 'hoy': 'High', 'high': 'High', 'h': 'High',
+        'middels': 'Medium', 'medium': 'Medium', 'med': 'Medium', 'm': 'Medium',
+        'lav': 'Low', 'low': 'Low', 'l': 'Low',
+        'rød': 'RED', 'rod': 'RED', 'red': 'RED',
+        'gul': 'YELLOW', 'yellow': 'YELLOW',
+        'grønn': 'GREEN', 'gronn': 'GREEN', 'green': 'GREEN'
+    };
+
+    // Map column indices by header name
+    const colMap = {};
+    headerRow.forEach((h, i) => {
+        const normalized = h.toLowerCase().replace(/['"]/g, '').trim();
+        const field = HEADER_MAP[normalized];
+        if (field) colMap[field] = i;
+    });
+
+    if (Object.keys(colMap).length < 2) throw new Error(T('csvImport.noHeaders'));
+
+    const parsedRisks = [];
+    for (let i = 1; i < lines.length; i++) {
+        const fields = parseCSVRow(lines[i]);
+        if (fields.every(f => !f)) continue; // skip empty rows
+
+        const get = (key) => {
+            const idx = colMap[key];
+            return idx !== undefined ? (fields[idx] || '') : '';
+        };
+
+        const normValue = (val) => {
+            const v = val.toLowerCase().trim();
+            return VALUE_MAP[v] || val;
+        };
+
+        const desc = get('description');
+        if (!desc) continue; // skip rows with no description
+
+        const rawId = get('id');
+        const likelihood = normLevel(normValue(get('likelihood')));
+        const consequence = normLevel(normValue(get('consequence')));
+
+        parsedRisks.push({
+            id: rawId ? parseInt(rawId, 10) || (parsedRisks.length + 1) : (parsedRisks.length + 1),
+            category: get('category') || 'General',
+            description: desc,
+            likelihood: likelihood,
+            consequence: consequence,
+            riskLevel: calcRiskLevel(likelihood, consequence),
+            root_cause: get('root_cause'),
+            mitigation: get('mitigation'),
+            responsible: get('responsible'),
+            status: 'active',
+            ai_comment: ''
+        });
+    }
+
+    if (parsedRisks.length === 0) throw new Error(T('csvImport.noRisks'));
+    return parsedRisks;
+}
+
+/* ═══════════════════════════════════════════════════
+   CSV Import — UI Handlers
+   ═══════════════════════════════════════════════════ */
+function handleCSVDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+}
+function handleCSVDragLeave(e) {
+    e.currentTarget.classList.remove('dragover');
+}
+function handleCSVDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) importCSVFile(files[0]);
+}
+function handleCSVFileSelect(e) {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) importCSVFile(files[0]);
+    e.target.value = '';
+}
+
+function importCSVFile(file) {
+    const errorEl = document.getElementById('csv-import-error');
+    errorEl.style.display = 'none';
+
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        errorEl.textContent = T('csvImport.parseError') + 'Only .csv files are accepted.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const parsed = parseRegisterCSV(e.target.result);
+            risks = parsed;
+            isImportedRegister = true;
+            importedRegisterName = file.name;
+            reassessmentSummary = '';
+
+            // Show the banner
+            showReassessBanner();
+
+            // Render everything
+            renderAll();
+        } catch (err) {
+            errorEl.textContent = T('csvImport.parseError') + err.message;
+            errorEl.style.display = 'block';
+        }
+    };
+    reader.readAsText(file);
+}
+
+function showReassessBanner() {
+    const banner = document.getElementById('reassess-banner');
+    const textEl = document.getElementById('reassess-banner-text');
+    const summaryEl = document.getElementById('reassess-summary');
+
+    const bannerText = T('csvImport.bannerText')
+        .replace('{filename}', escHTML(importedRegisterName))
+        .replace('{count}', risks.filter(r => r.status !== 'close' || r.status === 'close').length);
+    textEl.innerHTML = bannerText;
+
+    if (reassessmentSummary) {
+        summaryEl.innerHTML = `<strong>${T('reassess.summaryLabel')}:</strong> ${escHTML(reassessmentSummary)}`;
+        summaryEl.classList.add('visible');
+    } else {
+        summaryEl.classList.remove('visible');
+    }
+
+    banner.classList.add('visible');
+}
+
+/* ═══════════════════════════════════════════════════
+   Re-Assessment — Prompt & Flow
+   ═══════════════════════════════════════════════════ */
+function buildReassessSystemPrompt() {
+    const fw = getFrameworkConfig();
+    const template = T('reassessSystemPrompt');
+    return template
+        .replace(/\{frameworkName\}/g, fw.name)
+        .replace(/\{consCostHigh\}/g, fw.consCostHigh)
+        .replace(/\{consCostMed\}/g, fw.consCostMed)
+        .replace(/\{consCostLow\}/g, fw.consCostLow)
+        .replace(/\{consTimeHigh\}/g, fw.consTimeHigh)
+        .replace(/\{consTimeMed\}/g, fw.consTimeMed)
+        .replace(/\{consTimeLow\}/g, fw.consTimeLow)
+        .replace(/\{consQualityHigh\}/g, fw.consQualityHigh)
+        .replace(/\{consQualityMed\}/g, fw.consQualityMed)
+        .replace(/\{consQualityLow\}/g, fw.consQualityLow)
+        .replace(/\{likeHigh\}/g, fw.likeHigh)
+        .replace(/\{likeMed\}/g, fw.likeMed)
+        .replace(/\{likeLow\}/g, fw.likeLow);
+}
+
+function buildReassessUserPrompt() {
+    const category = document.getElementById('project-category').value;
+    const description = document.getElementById('project-context').value.trim();
+
+    // Build a formatted table of current risks
+    let table = 'ID | Category | Description | Likelihood | Consequence | Risk Level | Root Cause | Mitigation\n';
+    table += '---|---|---|---|---|---|---|---\n';
+    risks.forEach(r => {
+        table += `${r.id} | ${r.category} | ${r.description} | ${r.likelihood} | ${r.consequence} | ${r.riskLevel} | ${r.root_cause} | ${r.mitigation}\n`;
+    });
+
+    const template = T('reassessUserPrompt');
+    return template
+        .replace('{category}', category)
+        .replace('{description}', description)
+        .replace('{registerTable}', table);
+}
+
+function startReassessProgressFeed() {
+    const feed = document.getElementById('progress-feed');
+    feed.innerHTML = '';
+    feed.classList.add('visible');
+    progressTimers = [];
+
+    const steps = T('reassessProgress');
+    const riskCount = risks.length;
+
+    steps.forEach((step, i) => {
+        const timer = setTimeout(() => {
+            const prevIcon = feed.querySelector('.step-icon.pending');
+            if (prevIcon) {
+                prevIcon.classList.remove('pending');
+                prevIcon.classList.add('done');
+                prevIcon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            }
+
+            const el = document.createElement('div');
+            el.className = 'progress-step';
+            el.style.animationDelay = '0s';
+
+            const text = step.text.replace('{COUNT}', riskCount);
+            const now = new Date();
+            const ts = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            el.innerHTML = `
+                <div class="step-icon pending"></div>
+                <div class="step-text">${text}</div>
+                <span class="step-timestamp">${ts}</span>
+            `;
+            feed.appendChild(el);
+            feed.scrollTop = feed.scrollHeight;
+        }, step.delay);
+        progressTimers.push(timer);
+    });
+}
+
+async function reassessRisks() {
+    const apiKey = API_KEY;
+    const description = document.getElementById('project-context').value.trim();
+    const btn = document.getElementById('reassess-btn');
+    const errEl = document.getElementById('error-msg');
+
+    errEl.classList.remove('visible');
+    if (!description) {
+        showError(T('reassess.noDescription'));
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    // Expand input panel briefly to show progress
+    const panel = document.querySelector('.input-panel');
+    if (panel.classList.contains('collapsed')) {
+        toggleInputPanel();
+    }
+    startReassessProgressFeed();
+
+    try {
+        const systemPrompt = buildReassessSystemPrompt();
+        const userPrompt = buildReassessUserPrompt();
+        const raw = await callClaudeAPI(apiKey, systemPrompt, userPrompt);
+
+        let cleaned = raw.trim();
+        if (cleaned.startsWith('```')) {
+            cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+        }
+
+        let parsed;
+        try { parsed = JSON.parse(cleaned); }
+        catch (e) { throw new Error(T('errors.invalidJson')); }
+
+        // Merge existing risk updates
+        if (Array.isArray(parsed.existing_risks)) {
+            parsed.existing_risks.forEach(update => {
+                const existing = risks.find(r => r.id === update.id);
+                if (!existing) return;
+                if (update.likelihood) existing.likelihood = normLevel(update.likelihood);
+                if (update.consequence) existing.consequence = normLevel(update.consequence);
+                existing.riskLevel = calcRiskLevel(existing.likelihood, existing.consequence);
+                if (update.mitigation) existing.mitigation = update.mitigation;
+                if (update.status === 'close') existing.status = 'close';
+                if (update.ai_comment) existing.ai_comment = update.ai_comment;
+            });
+        }
+
+        // Append new risks
+        if (Array.isArray(parsed.new_risks)) {
+            const maxId = risks.reduce((max, r) => Math.max(max, r.id), 0);
+            parsed.new_risks.forEach((nr, i) => {
+                risks.push({
+                    id: nr.id || (maxId + i + 1),
+                    category: nr.category || 'General',
+                    description: nr.description || '',
+                    likelihood: normLevel(nr.likelihood),
+                    consequence: normLevel(nr.consequence),
+                    riskLevel: calcRiskLevel(normLevel(nr.likelihood), normLevel(nr.consequence)),
+                    root_cause: nr.root_cause || '',
+                    mitigation: nr.mitigation || '',
+                    responsible: '',
+                    status: 'new',
+                    ai_comment: nr.ai_comment || ''
+                });
+            });
+        }
+
+        // Store summary
+        reassessmentSummary = parsed.summary || '';
+
+        finishProgressFeed('reassessProgressComplete');
+
+        // Re-collapse input panel
+        setTimeout(() => {
+            collapseInputPanel();
+        }, 800);
+
+        // Update banner and re-render
+        showReassessBanner();
+        renderMatrix();
+        renderSummary();
+        renderPriority();
+        renderTable();
+
+    } catch (err) {
+        clearProgressFeed();
+        showError(err.message);
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+/* ═══════════════════════════════════════════════════
+   Keep / Remove Risk Actions
+   ═══════════════════════════════════════════════════ */
+function keepRisk(id) {
+    const risk = risks.find(r => r.id === id);
+    if (risk) {
+        risk.status = 'active';
+        renderMatrix();
+        renderSummary();
+        renderPriority();
+        renderTable();
+    }
+}
+
+function removeRisk(id) {
+    risks = risks.filter(r => r.id !== id);
+    renderMatrix();
+    renderSummary();
+    renderPriority();
+    renderTable();
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2394,6 +3294,24 @@ function toggleCustomFrameworkUpload() {
    ═══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
     setLanguage(currentLang);
+
+    /* Header scroll effect */
+    const header = document.querySelector('.header');
+    window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    /* Scroll-triggered reveal animations */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
 });
 </script>
 
