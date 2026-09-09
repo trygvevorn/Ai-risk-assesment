@@ -113,7 +113,7 @@ User enters API key → User describes project → AI generates risks → User r
 ### Claude API Integration
 - Uses the Messages API endpoint: `https://api.anthropic.com/v1/messages`
 - Required headers: `x-api-key`, `anthropic-version: 2023-06-01`, `content-type: application/json`, `anthropic-dangerous-direct-browser-access: true`
-- Model: `claude-sonnet-4-20250514` (good balance of quality and speed for structured risk generation)
+- Model: `claude-sonnet-5` (replaced the retired `claude-sonnet-4-20250514` on 2026-09-09; good balance of quality and speed for structured risk generation)
 - Max tokens: ~4000 (sufficient for 8-12 risks with full detail)
 - Temperature: 0.3 (lower temperature for more consistent, grounded output)
 

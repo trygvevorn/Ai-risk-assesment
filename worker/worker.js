@@ -1,5 +1,8 @@
 const ALLOWED_ORIGIN = 'https://trygvevorn.github.io';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+// claude-sonnet-4-20250514 was retired on 2026-06-15 (API answered 404 "model: claude-sonnet-4-20250514").
+// Keep in sync with CLAUDE_MODEL in index.html.
+const DEFAULT_MODEL = 'claude-sonnet-5';
 const RATE_LIMIT = 20; // requests per minute per IP
 
 const ipRequests = new Map();
@@ -56,12 +59,16 @@ export default {
 
       // Only allow expected fields through
       const payload = {
-        model: body.model || 'claude-sonnet-4-20250514',
-        max_tokens: Math.min(body.max_tokens || 4096, 8192),
-        temperature: body.temperature ?? 0.3,
+        model: body.model || DEFAULT_MODEL,
+        max_tokens: Math.min(body.max_tokens || 8192, 8192),
         system: body.system,
         messages: [{ role: 'user', content: body.user }],
       };
+      // Sonnet 5 and newer reject non-default temperature/top_p/top_k with HTTP 400.
+      // Forward temperature only when the client explicitly asks for it; never inject a default.
+      if (typeof body.temperature === 'number') payload.temperature = body.temperature;
+      // Let the client control thinking (e.g. { type: 'disabled' } to keep max_tokens for the answer).
+      if (body.thinking && typeof body.thinking === 'object') payload.thinking = body.thinking;
 
       const apiResponse = await fetch(ANTHROPIC_URL, {
         method: 'POST',
