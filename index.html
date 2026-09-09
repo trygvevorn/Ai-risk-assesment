@@ -1531,6 +1531,9 @@ let isImportedRegister = false;
 let importedRegisterName = '';
 let reassessmentSummary = '';
 const WORKER_URL = 'https://risk-api.trygve-6a3.workers.dev';
+// claude-sonnet-4-20250514 was retired on 2026-06-15; the API answered 404 "model: claude-sonnet-4-20250514".
+// claude-sonnet-5 is Anthropic's drop-in replacement. Keep in sync with worker/worker.js.
+const CLAUDE_MODEL = 'claude-sonnet-5';
 
 /* ═══════════════════════════════════════════════════
    i18n — Language Dictionary
@@ -2393,9 +2396,17 @@ async function callClaudeAPI(systemPrompt, userPrompt) {
         body: JSON.stringify({
             system: systemPrompt,
             user: userPrompt,
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 4096,
-            temperature: 0.3,
+            model: CLAUDE_MODEL,
+            // Tokenizer change: Sonnet 5 needs ~30 % more tokens for the same text than Sonnet 4.
+            max_tokens: 8192,
+            // Sonnet 5 rejects non-default temperature/top_p/top_k with HTTP 400 (the old 0.3 is gone).
+            // 1 is the API default and is accepted. It is sent explicitly because a worker deployed
+            // before this fix injects 0.3 whenever the field is missing; remove once the worker is redeployed.
+            temperature: 1,
+            // Thinking is disabled explicitly: Sonnet 5 runs adaptive thinking by default, which
+            // would consume max_tokens and put a thinking block ahead of the JSON text.
+            // (Older worker builds drop this field; the text block is then found by type below.)
+            thinking: { type: 'disabled' },
         })
     });
 
@@ -2406,7 +2417,8 @@ async function callClaudeAPI(systemPrompt, userPrompt) {
     }
 
     const data = await response.json();
-    const text = data.content?.[0]?.text;
+    // Pick the text block by type: newer models may return thinking blocks before the text.
+    const text = data.content?.find(b => b.type === 'text')?.text;
     if (!text) throw new Error(T('errors.emptyResponse'));
     return text;
 }
