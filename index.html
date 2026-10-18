@@ -805,6 +805,15 @@
         .priority-badge.critical { background: var(--risk-red-soft); color: var(--risk-red); }
         .priority-badge.important { background: var(--risk-yellow-soft); color: var(--risk-yellow); }
         .priority-badge.monitor { background: var(--risk-green-soft); color: var(--risk-green); }
+        .priority-rank.opportunity, .priority-badge.opportunity { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); }
+
+        /* ── Opportunities (positive risks) ── */
+        .risk-chip.opportunity { background: var(--white); color: var(--accent-blue); border: 2px solid var(--accent-blue); box-shadow: 0 1px 4px rgba(36, 87, 135, 0.3); }
+        .risk-chip.opportunity.highlighted { box-shadow: 0 0 0 2px var(--navy), 0 2px 8px rgba(36, 87, 135, 0.4); }
+        .risk-level-badge.opportunity { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); }
+        .risk-level-badge.opportunity::before { background: var(--accent-blue); }
+        .status-badge.opp-badge { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); margin-left: 0; margin-bottom: 0.25rem; }
+        .summary-dot.opportunity { background: var(--white); border: 2px solid var(--accent-blue); box-sizing: border-box; }
 
         /* ── Error ── */
         .error-message {
@@ -1315,6 +1324,16 @@
                 </select>
             </div>
 
+            <div class="field-group">
+                <label for="opp-count"><span class="label-with-info"><span data-i18n="input.oppCount.label">Number of Opportunities</span> <span class="info-icon" onclick="toggleTooltip(event)">?<span class="tooltip" data-i18n="input.oppCount.tooltip">How many opportunities (uncertain events with a positive effect) the AI should identify in addition to the threats. Set to 0 for threats only.</span></span></span></label>
+                <select id="opp-count">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+
             <!-- Advanced: Custom Risk Framework -->
             <button class="advanced-toggle" id="adv-toggle" onclick="toggleAdvanced()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1560,6 +1579,10 @@ const LANG = {
         label: 'Number of Risks',
         tooltip: 'How many distinct risks the AI should identify. More risks give broader coverage; fewer give deeper analysis per risk.'
       },
+      oppCount: {
+        label: 'Number of Opportunities',
+        tooltip: 'How many opportunities (uncertain events with a positive effect) the AI should identify in addition to the threats. Set to 0 for threats only.'
+      },
       upload: {
         dropText: 'Drop files here or <strong>browse</strong>',
         hint: 'TXT, MD, CSV, JSON, XML, LOG, RTF — max 50K characters total',
@@ -1647,8 +1670,9 @@ const LANG = {
     },
     levels: { high: 'High', medium: 'Medium', low: 'Low' },
     riskLevels: { RED: 'RED', YELLOW: 'YELLOW', GREEN: 'GREEN' },
-    summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified' },
-    priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor' },
+    summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified', opportunities: 'Opportunities' },
+    priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor', pursue: 'Pursue' },
+    opportunity: { badge: 'Opportunity', level: 'Upside' },
     progress: [
       { text: '<strong>Initializing</strong> — Loading risk assessment framework', delay: 0 },
       { text: '<strong>Context Analysis</strong> — Parsing project scope, contract terms, and constraints', delay: 800 },
@@ -1671,7 +1695,7 @@ const LANG = {
     },
     rootCause: 'Root cause:',
     removeFile: 'Remove file',
-    csv: { headers: ['ID','Category','Description','Likelihood','Consequence','Risk Level','Root Cause','Mitigating Action','Responsible'] },
+    csv: { headers: ['ID','Type','Category','Description','Likelihood','Consequence','Risk Level','Root Cause','Mitigating Action','Responsible'] },
     csvImport: {
       dropText: 'Upload existing risk register (<strong>.csv</strong>)',
       hint: 'Continue from a previous assessment',
@@ -1710,6 +1734,7 @@ Your task is to review and update an existing risk register. You must:
 3. Identify 2–5 NEW risks that may have emerged since the last assessment
 4. Provide a brief ai_comment for each existing risk explaining your assessment
 5. Write a summary of how the overall risk profile has evolved
+6. The register holds both threats and opportunities (column Type). For an opportunity, Consequence is the size of the positive impact and the mitigation text is the action that exploits or enhances it. New items may be either type; set "type" accordingly
 
 Risk Matrix Definitions ({frameworkName}):
 
@@ -1741,7 +1766,7 @@ Output ONLY valid JSON — no markdown fences, no commentary. Use this exact str
     { "id": 1, "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "mitigation": "updated mitigation text", "status": "active|close", "ai_comment": "brief assessment comment" }
   ],
   "new_risks": [
-    { "id": 11, "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "why this new risk was identified" }
+    { "id": 11, "type": "threat|opportunity", "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "why this new risk was identified" }
   ],
   "summary": "Overall assessment of how the risk profile has evolved"
 }`,
@@ -1757,11 +1782,12 @@ Based on the project details and the current risk register above, perform a comp
     systemPrompt: `You are a senior risk management consultant specialising in energy infrastructure, industrial projects, and project management. You follow ISO 31000:2018 (Risk Management — Guidelines) and IEC 31010:2019 (Risk Assessment Techniques) methodologies rigorously. You are applying the {frameworkName} risk framework.
 
 Your task is to produce a comprehensive project risk register. You must:
-1. Identify exactly {riskCount} distinct, project-specific risks (threats only — not opportunities).
-2. Categorise each risk under one of these categories: {categories}.
-3. For each risk, assess Likelihood and Consequence using the 3-level scale defined below.
-4. Provide a clear root cause and actionable mitigating actions.
-5. Be specific to the project described — avoid generic boilerplate risks.
+1. Identify exactly {riskCount} distinct, project-specific threats (type "threat") AND exactly {oppCount} distinct, project-specific opportunities (type "opportunity"). An opportunity is an uncertain event that, if it occurs, has a POSITIVE effect on cost, time or performance (ISO 31000: risk is the effect of uncertainty on objectives, positive or negative).
+2. Categorise each item under one of these categories: {categories}.
+3. For each item, assess Likelihood and Consequence using the 3-level scale defined below. For an opportunity, Consequence is the size of the positive impact (e.g. High = saving > the High cost threshold, or more than one month earlier finish).
+4. Provide a clear root cause (for opportunities: the enabling condition) and actionable responses. For threats the response mitigates; for opportunities the response exploits or enhances the opportunity.
+5. Be specific to the project described — avoid generic boilerplate risks and generic opportunities such as "improved client relationship".
+6. List all threats first, then the opportunities. Number ids consecutively.
 
 Risk Matrix Definitions ({frameworkName}):
 
@@ -1798,6 +1824,7 @@ Output ONLY valid JSON — no markdown fences, no commentary. Use this exact str
   "risks": [
     {
       "id": 1,
+      "type": "threat|opportunity",
       "category": "...",
       "description": "...",
       "likelihood": "High|Medium|Low",
@@ -1807,7 +1834,7 @@ Output ONLY valid JSON — no markdown fences, no commentary. Use this exact str
     }
   ]
 }`,
-    userPromptSuffix: 'Based on the above project details, generate a comprehensive risk register with exactly {count} specific risks. Remember: output valid JSON only.',
+    userPromptSuffix: 'Based on the above project details, generate a comprehensive risk register with exactly {count} specific threats and exactly {oppCount} specific opportunities. Remember: output valid JSON only.',
     exampleProject: `A client currently undertakes audits of their high-pressure pipelines to assess their compliance with a named standard and to identify any infringements. To demonstrate compliance, all infringements are assessed to determine the tolerability of the associated risk.
 
 Contract & Client:
@@ -1855,6 +1882,10 @@ Team & Resources:
       riskCount: {
         label: 'Antall risikoer',
         tooltip: 'Hvor mange distinkte risikoer AI-en skal identifisere. Flere risikoer gir bredere dekning; færre gir dypere analyse per risiko.'
+      },
+      oppCount: {
+        label: 'Antall muligheter',
+        tooltip: 'Hvor mange muligheter (usikre hendelser med positiv effekt) AI-en skal identifisere i tillegg til truslene. Sett til 0 for kun trusler.'
       },
       upload: {
         dropText: 'Slipp filer her eller <strong>bla gjennom</strong>',
@@ -1943,8 +1974,9 @@ Team & Resources:
     },
     levels: { high: 'Høy', medium: 'Middels', low: 'Lav' },
     riskLevels: { RED: 'RØD', YELLOW: 'GUL', GREEN: 'GRØNN' },
-    summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert' },
-    priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk' },
+    summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert', opportunities: 'Muligheter' },
+    priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk', pursue: 'Utnytt' },
+    opportunity: { badge: 'Mulighet', level: 'Gevinst' },
     progress: [
       { text: '<strong>Initialiserer</strong> — Laster risikovurderingsrammeverk', delay: 0 },
       { text: '<strong>Kontekstanalyse</strong> — Analyserer prosjektomfang, kontraktsvilkår og begrensninger', delay: 800 },
@@ -1967,7 +1999,7 @@ Team & Resources:
     },
     rootCause: 'Rotårsak:',
     removeFile: 'Fjern fil',
-    csv: { headers: ['ID','Kategori','Beskrivelse','Sannsynlighet','Konsekvens','Risikonivå','Rotårsak','Tiltak','Ansvarlig'] },
+    csv: { headers: ['ID','Type','Kategori','Beskrivelse','Sannsynlighet','Konsekvens','Risikonivå','Rotårsak','Tiltak','Ansvarlig'] },
     csvImport: {
       dropText: 'Last opp eksisterende risikoregister (<strong>.csv</strong>)',
       hint: 'Fortsett fra en tidligere vurdering',
@@ -2006,6 +2038,7 @@ Din oppgave er å gjennomgå og oppdatere et eksisterende risikoregister. Du må
 3. Identifiser 2–5 NYE risikoer som kan ha oppstått siden forrige vurdering
 4. Gi en kort ai_comment for hver eksisterende risiko som forklarer din vurdering
 5. Skriv et sammendrag av hvordan den overordnede risikoprofilen har utviklet seg
+6. Registeret inneholder både trusler og muligheter (kolonnen Type). For en mulighet er konsekvensen størrelsen på den positive effekten, og tiltaksteksten er handlingen som utnytter eller forsterker den. Nye punkter kan være begge typer; sett "type" tilsvarende
 
 Risikomatrisedefinisjonene ({frameworkName}):
 
@@ -2037,7 +2070,7 @@ Skriv KUN gyldig JSON — ingen markdown-blokker, ingen kommentarer. Bruk denne 
     { "id": 1, "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "mitigation": "oppdatert tiltakstekst", "status": "active|close", "ai_comment": "kort vurderingskommentar" }
   ],
   "new_risks": [
-    { "id": 11, "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "hvorfor denne nye risikoen ble identifisert" }
+    { "id": 11, "type": "threat|opportunity", "category": "...", "description": "...", "likelihood": "High|Medium|Low", "consequence": "High|Medium|Low", "root_cause": "...", "mitigation": "...", "ai_comment": "hvorfor denne nye risikoen ble identifisert" }
   ],
   "summary": "Overordnet vurdering av hvordan risikoprofilen har utviklet seg"
 }`,
@@ -2053,11 +2086,12 @@ Basert på prosjektdetaljene og det nåværende risikoregisteret ovenfor, utfør
     systemPrompt: `Du er en senior risikostyringsrådgiver med spesialisering innen energiinfrastruktur, industriprosjekter og prosjektledelse. Du følger ISO 31000:2018 (Risikostyring — Retningslinjer) og IEC 31010:2019 (Risikovurderingsteknikker) metodikk nøye. Du anvender {frameworkName}-risikorammeverket.
 
 Din oppgave er å utarbeide et omfattende prosjektrisikoregister. Du må:
-1. Identifisere nøyaktig {riskCount} distinkte, prosjektspesifikke risikoer (kun trusler — ikke muligheter).
-2. Kategorisere hver risiko under en av disse kategoriene: {categories}.
-3. For hver risiko, vurdere sannsynlighet og konsekvens ved hjelp av 3-nivåskalaen definert nedenfor.
-4. Oppgi en tydelig rotårsak og handlingsrettede tiltak.
-5. Vær spesifikk for det beskrevne prosjektet — unngå generiske standardrisikoer.
+1. Identifisere nøyaktig {riskCount} distinkte, prosjektspesifikke trusler (type "threat") OG nøyaktig {oppCount} distinkte, prosjektspesifikke muligheter (type "opportunity"). En mulighet er en usikker hendelse som, hvis den inntreffer, har en POSITIV effekt på kostnad, tid eller ytelse (ISO 31000: risiko er effekten av usikkerhet på mål, positiv eller negativ).
+2. Kategorisere hvert punkt under en av disse kategoriene: {categories}.
+3. For hvert punkt, vurdere sannsynlighet og konsekvens ved hjelp av 3-nivåskalaen definert nedenfor. For en mulighet er konsekvensen størrelsen på den positive effekten (f.eks. Høy = besparelse over den høye kostnadsterskelen, eller mer enn én måned tidligere ferdigstillelse).
+4. Oppgi en tydelig rotårsak (for muligheter: den utløsende forutsetningen) og handlingsrettede tiltak. For trusler reduserer tiltaket risikoen; for muligheter utnytter eller forsterker tiltaket muligheten.
+5. Vær spesifikk for det beskrevne prosjektet — unngå generiske standardrisikoer og generiske muligheter som «bedre kunderelasjon».
+6. List alle trusler først, deretter mulighetene. Nummerer id fortløpende.
 
 Risikomatrisedefinisjonene ({frameworkName}):
 
@@ -2094,6 +2128,7 @@ Skriv KUN gyldig JSON — ingen markdown-blokker, ingen kommentarer. Bruk denne 
   "risks": [
     {
       "id": 1,
+      "type": "threat|opportunity",
       "category": "...",
       "description": "...",
       "likelihood": "High|Medium|Low",
@@ -2103,7 +2138,7 @@ Skriv KUN gyldig JSON — ingen markdown-blokker, ingen kommentarer. Bruk denne 
     }
   ]
 }`,
-    userPromptSuffix: 'Basert på prosjektdetaljene ovenfor, generer et omfattende risikoregister med nøyaktig {count} spesifikke risikoer. Husk: skriv kun gyldig JSON.',
+    userPromptSuffix: 'Basert på prosjektdetaljene ovenfor, generer et omfattende risikoregister med nøyaktig {count} spesifikke trusler og nøyaktig {oppCount} spesifikke muligheter. Husk: skriv kun gyldig JSON.',
     exampleProject: `En klient gjennomfører for tiden revisjoner av sine høytrykksledninger for å vurdere samsvar med en navngitt standard og identifisere eventuelle brudd. For å demonstrere samsvar blir alle brudd vurdert for å fastslå tålbarheten av den tilknyttede risikoen.
 
 Kontrakt og klient:
@@ -2354,6 +2389,7 @@ function buildSystemPrompt() {
     const prompt = template
         .replace(/\{frameworkName\}/g, fw.name)
         .replace(/\{riskCount\}/g, riskCount)
+        .replace(/\{oppCount\}/g, document.getElementById('opp-count').value)
         .replace(/\{categories\}/g, fw.categories)
         .replace(/\{consCostHigh\}/g, fw.consCostHigh)
         .replace(/\{consCostMed\}/g, fw.consCostMed)
@@ -2382,7 +2418,7 @@ function buildUserPrompt(category, context) {
         prompt += '\n--- END ATTACHED DOCUMENTS ---';
     }
 
-    prompt += '\n\n' + T('userPromptSuffix').replace('{count}', riskCount);
+    prompt += '\n\n' + T('userPromptSuffix').replace('{count}', riskCount).replace('{oppCount}', document.getElementById('opp-count').value);
     return prompt;
 }
 
@@ -2459,6 +2495,7 @@ async function generateRiskAssessment() {
 
         risks = parsed.risks.map((r, i) => ({
             id: r.id || (i + 1),
+            type: normType(r.type),
             category: r.category || 'General',
             description: r.description || '',
             likelihood: normLevel(r.likelihood),
@@ -2495,6 +2532,13 @@ function normLevel(val) {
     const v = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
     return ['High','Medium','Low'].includes(v) ? v : 'Medium';
 }
+
+/* Threat is the default: older registers and CSV files have no type column */
+function normType(val) {
+    const v = String(val || '').toLowerCase().trim();
+    return ['opportunity', 'mulighet', 'o'].includes(v) ? 'opportunity' : 'threat';
+}
+const isOpp = r => r.type === 'opportunity';
 
 function showError(msg) {
     const el = document.getElementById('error-msg');
@@ -2589,10 +2633,10 @@ function renderMatrix() {
         } else {
             riskList.forEach(r => {
                 const chip = document.createElement('div');
-                chip.className = `risk-chip ${r.riskLevel.toLowerCase()}`;
+                chip.className = `risk-chip ${isOpp(r) ? 'opportunity' : r.riskLevel.toLowerCase()}`;
                 if (r.status === 'close') chip.style.opacity = '0.35';
                 chip.textContent = r.id;
-                chip.title = `R${r.id}: ${r.description.substring(0, 60)}...`;
+                chip.title = `${isOpp(r) ? T('opportunity.badge') + ' ' : ''}R${r.id}: ${r.description.substring(0, 60)}...`;
                 chip.setAttribute('role', 'button');
                 chip.setAttribute('aria-label', `Risk ${r.id}: ${r.category}`);
                 chip.setAttribute('tabindex', '0');
@@ -2608,18 +2652,22 @@ function renderMatrix() {
 function renderSummary() {
     const activeRisks = risks.filter(r => r.status !== 'close');
     const counts = { RED:0, YELLOW:0, GREEN:0 };
-    activeRisks.forEach(r => counts[r.riskLevel]++);
+    activeRisks.filter(r => !isOpp(r)).forEach(r => counts[r.riskLevel]++);
+    const oppCount = activeRisks.filter(isOpp).length;
     document.getElementById('risk-summary').innerHTML = `
         <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} ${T('summary.high')}</span>
         <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} ${T('summary.medium')}</span>
         <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} ${T('summary.low')}</span>
+        ${oppCount ? `<span class="summary-stat"><span class="summary-dot opportunity"></span>${oppCount} ${T('summary.opportunities')}</span>` : ''}
         <span class="summary-stat" style="margin-left:auto;color:var(--text-tertiary);font-weight:400;font-size:0.72rem;">${activeRisks.length} ${T('summary.risksIdentified')}</span>
     `;
 }
 
 function renderPriority() {
     /* Sort active risks by composite score: severity * (likelihood + consequence) */
+    /* Threats first, then opportunities, each group sorted by the same score */
     const sorted = [...risks].filter(r => r.status !== 'close').sort((a, b) => {
+        if (isOpp(a) !== isOpp(b)) return isOpp(a) ? 1 : -1;
         const scoreA = SEVERITY_SCORE[a.riskLevel] * (LIKELIHOOD_SCORE[a.likelihood] + CONSEQUENCE_SCORE[a.consequence]);
         const scoreB = SEVERITY_SCORE[b.riskLevel] * (LIKELIHOOD_SCORE[b.likelihood] + CONSEQUENCE_SCORE[b.consequence]);
         return scoreB - scoreA;
@@ -2629,8 +2677,8 @@ function renderPriority() {
     container.innerHTML = '';
 
     sorted.forEach((r, i) => {
-        const tier = r.riskLevel === 'RED' ? 'critical' : r.riskLevel === 'YELLOW' ? 'important' : 'monitor';
-        const tierLabel = r.riskLevel === 'RED' ? T('priority.actNow') : r.riskLevel === 'YELLOW' ? T('priority.plan') : T('priority.monitor');
+        const tier = isOpp(r) ? 'opportunity' : r.riskLevel === 'RED' ? 'critical' : r.riskLevel === 'YELLOW' ? 'important' : 'monitor';
+        const tierLabel = isOpp(r) ? T('priority.pursue') : r.riskLevel === 'RED' ? T('priority.actNow') : r.riskLevel === 'YELLOW' ? T('priority.plan') : T('priority.monitor');
 
         const item = document.createElement('div');
         item.className = 'priority-item';
@@ -2682,7 +2730,7 @@ function renderTable() {
 
         tr.innerHTML = `
             <td class="risk-id">${r.id}${statusBadge}</td>
-            <td class="risk-category-cell">${escHTML(r.category)}</td>
+            <td class="risk-category-cell">${isOpp(r) ? `<span class="status-badge opp-badge">${T('opportunity.badge')}</span><br>` : ''}${escHTML(r.category)}</td>
             <td class="risk-desc">
                 <div>${escHTML(r.description)}</div>
                 ${r.root_cause ? `<div class="root-cause-text"><strong>${T('rootCause')}</strong> ${escHTML(r.root_cause)}</div>` : ''}
@@ -2703,7 +2751,7 @@ function renderTable() {
                     <option value="High" ${r.consequence==='High'?'selected':''}>${T('levels.high')}</option>
                 </select>
             </td>
-            <td><span class="risk-level-badge ${r.riskLevel.toLowerCase()}">${T('riskLevels.' + r.riskLevel)}</span></td>
+            <td>${riskLevelBadgeHTML(r)}</td>
             <td class="mitigation-text">${escHTML(r.mitigation)}</td>
             <td><input type="text" value="${escHTML(r.responsible)}" placeholder="—" aria-label="Responsible for risk ${r.id}" onchange="updateRisk(${r.id},'responsible',this.value)"></td>
         `;
@@ -2714,6 +2762,15 @@ function renderTable() {
 /* ═══════════════════════════════════════════════════
    Interaction
    ═══════════════════════════════════════════════════ */
+/* An opportunity's level is the size of its upside, so it is not coloured as a threat */
+function riskLevelBadgeHTML(r) {
+    if (isOpp(r)) {
+        const lvl = { RED: 'high', YELLOW: 'medium', GREEN: 'low' }[r.riskLevel];
+        return `<span class="risk-level-badge opportunity">${T('opportunity.level')}: ${T('levels.' + lvl)}</span>`;
+    }
+    return `<span class="risk-level-badge ${r.riskLevel.toLowerCase()}">${T('riskLevels.' + r.riskLevel)}</span>`;
+}
+
 function updateRisk(id, field, value) {
     const risk = risks.find(r => r.id === id);
     if (!risk) return;
@@ -2726,10 +2783,7 @@ function updateRisk(id, field, value) {
         const row = document.getElementById(`risk-row-${id}`);
         if (row) {
             const badge = row.querySelector('.risk-level-badge');
-            if (badge) {
-                badge.className = `risk-level-badge ${risk.riskLevel.toLowerCase()}`;
-                badge.textContent = T('riskLevels.' + risk.riskLevel);
-            }
+            if (badge) badge.outerHTML = riskLevelBadgeHTML(risk);
         }
     }
 }
@@ -2756,7 +2810,7 @@ function exportCSV() {
     // Exclude risks marked for closure (user can still Keep them before export)
     const exportRisks = risks.filter(r => r.status !== 'close');
     const rows = exportRisks.map(r => [
-        r.id, csvEscape(r.category), csvEscape(r.description),
+        r.id, isOpp(r) ? 'Opportunity' : 'Threat', csvEscape(r.category), csvEscape(r.description),
         r.likelihood, r.consequence, r.riskLevel,
         csvEscape(r.root_cause), csvEscape(r.mitigation), csvEscape(r.responsible)
     ]);
@@ -2830,6 +2884,7 @@ function parseRegisterCSV(text) {
     // Bilingual header mapping (EN and NO)
     const HEADER_MAP = {
         'id': 'id', '#': 'id',
+        'type': 'type',
         'category': 'category', 'kategori': 'category',
         'description': 'description', 'beskrivelse': 'description',
         'likelihood': 'likelihood', 'sannsynlighet': 'likelihood',
@@ -2884,6 +2939,7 @@ function parseRegisterCSV(text) {
 
         parsedRisks.push({
             id: rawId ? parseInt(rawId, 10) || (parsedRisks.length + 1) : (parsedRisks.length + 1),
+            type: normType(get('type')),
             category: get('category') || 'General',
             description: desc,
             likelihood: likelihood,
@@ -3002,10 +3058,10 @@ function buildReassessUserPrompt() {
     const description = document.getElementById('project-context').value.trim();
 
     // Build a formatted table of current risks
-    let table = 'ID | Category | Description | Likelihood | Consequence | Risk Level | Root Cause | Mitigation\n';
-    table += '---|---|---|---|---|---|---|---\n';
+    let table = 'ID | Type | Category | Description | Likelihood | Consequence | Risk Level | Root Cause | Mitigation\n';
+    table += '---|---|---|---|---|---|---|---|---\n';
     risks.forEach(r => {
-        table += `${r.id} | ${r.category} | ${r.description} | ${r.likelihood} | ${r.consequence} | ${r.riskLevel} | ${r.root_cause} | ${r.mitigation}\n`;
+        table += `${r.id} | ${r.type} | ${r.category} |${r.description} | ${r.likelihood} | ${r.consequence} | ${r.riskLevel} | ${r.root_cause} | ${r.mitigation}\n`;
     });
 
     const template = T('reassessUserPrompt');
@@ -3108,6 +3164,7 @@ async function reassessRisks() {
             parsed.new_risks.forEach((nr, i) => {
                 risks.push({
                     id: nr.id || (maxId + i + 1),
+                    type: normType(nr.type),
                     category: nr.category || 'General',
                     description: nr.description || '',
                     likelihood: normLevel(nr.likelihood),
