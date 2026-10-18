@@ -1549,6 +1549,11 @@ let currentLang = localStorage.getItem('lang') || 'en';
 let isImportedRegister = false;
 let importedRegisterName = '';
 let reassessmentSummary = '';
+// Language the AI-written register text is in (null = unknown, e.g. an imported CSV),
+// and earlier translations per language so switching back does not call the API again.
+let registerLang = null;
+let translationCache = {};
+let translationRun = 0;
 const WORKER_URL = 'https://risk-api.trygve-6a3.workers.dev';
 // claude-sonnet-4-20250514 was retired on 2026-06-15; the API answered 404 "model: claude-sonnet-4-20250514".
 // claude-sonnet-5 is Anthropic's drop-in replacement. Keep in sync with worker/worker.js.
@@ -1672,7 +1677,8 @@ const LANG = {
     riskLevels: { RED: 'RED', YELLOW: 'YELLOW', GREEN: 'GREEN' },
     summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified', opportunities: 'Opportunities' },
     priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor', pursue: 'Pursue' },
-    opportunity: { badge: 'Opportunity', level: 'Upside' },
+    opportunity: { badge: 'Opportunity', level: 'Upside', threat: 'Threat' },
+    translating: 'Translating register…',
     progress: [
       { text: '<strong>Initializing</strong> — Loading risk assessment framework', delay: 0 },
       { text: '<strong>Context Analysis</strong> — Parsing project scope, contract terms, and constraints', delay: 800 },
@@ -1691,7 +1697,8 @@ const LANG = {
       invalidKey: 'Invalid API key.',
       rateLimit: 'Rate limit exceeded. Please wait a moment.',
       apiError: 'API error',
-      emptyResponse: 'Empty response from the API.'
+      emptyResponse: 'Empty response from the API.',
+      translateFailed: 'Could not translate the register. The text stays in the original language.'
     },
     rootCause: 'Root cause:',
     removeFile: 'Remove file',
@@ -1735,6 +1742,7 @@ Your task is to review and update an existing risk register. You must:
 4. Provide a brief ai_comment for each existing risk explaining your assessment
 5. Write a summary of how the overall risk profile has evolved
 6. The register holds both threats and opportunities (column Type). For an opportunity, Consequence is the size of the positive impact and the mitigation text is the action that exploits or enhances it. New items may be either type; set "type" accordingly
+7. Write all free text (category, description, root_cause, mitigation, ai_comment, summary) in English, also if the register or project description is in another language
 
 Risk Matrix Definitions ({frameworkName}):
 
@@ -1788,6 +1796,7 @@ Your task is to produce a comprehensive project risk register. You must:
 4. Provide a clear root cause (for opportunities: the enabling condition) and actionable responses. For threats the response mitigates; for opportunities the response exploits or enhances the opportunity.
 5. Be specific to the project described — avoid generic boilerplate risks and generic opportunities such as "improved client relationship".
 6. List all threats first, then the opportunities. Number ids consecutively.
+7. Write all free text (category, description, root_cause, mitigation) in English, also if the project description or attached documents are in another language.
 
 Risk Matrix Definitions ({frameworkName}):
 
@@ -1976,7 +1985,8 @@ Team & Resources:
     riskLevels: { RED: 'RØD', YELLOW: 'GUL', GREEN: 'GRØNN' },
     summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert', opportunities: 'Muligheter' },
     priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk', pursue: 'Utnytt' },
-    opportunity: { badge: 'Mulighet', level: 'Gevinst' },
+    opportunity: { badge: 'Mulighet', level: 'Gevinst', threat: 'Trussel' },
+    translating: 'Oversetter registeret…',
     progress: [
       { text: '<strong>Initialiserer</strong> — Laster risikovurderingsrammeverk', delay: 0 },
       { text: '<strong>Kontekstanalyse</strong> — Analyserer prosjektomfang, kontraktsvilkår og begrensninger', delay: 800 },
@@ -1995,7 +2005,8 @@ Team & Resources:
       invalidKey: 'Ugyldig API-nøkkel.',
       rateLimit: 'Hastighetsgrense overskredet. Vennligst vent et øyeblikk.',
       apiError: 'API-feil',
-      emptyResponse: 'Tomt svar fra API-et.'
+      emptyResponse: 'Tomt svar fra API-et.',
+      translateFailed: 'Kunne ikke oversette registeret. Teksten står på originalspråket.'
     },
     rootCause: 'Rotårsak:',
     removeFile: 'Fjern fil',
@@ -2039,6 +2050,7 @@ Din oppgave er å gjennomgå og oppdatere et eksisterende risikoregister. Du må
 4. Gi en kort ai_comment for hver eksisterende risiko som forklarer din vurdering
 5. Skriv et sammendrag av hvordan den overordnede risikoprofilen har utviklet seg
 6. Registeret inneholder både trusler og muligheter (kolonnen Type). For en mulighet er konsekvensen størrelsen på den positive effekten, og tiltaksteksten er handlingen som utnytter eller forsterker den. Nye punkter kan være begge typer; sett "type" tilsvarende
+7. Skriv all fritekst (category, description, root_cause, mitigation, ai_comment, summary) på norsk bokmål, også hvis registeret eller prosjektbeskrivelsen er på engelsk. Feltverdiene for type, likelihood, consequence og status skal stå nøyaktig som i JSON-malen (engelsk)
 
 Risikomatrisedefinisjonene ({frameworkName}):
 
@@ -2092,6 +2104,7 @@ Din oppgave er å utarbeide et omfattende prosjektrisikoregister. Du må:
 4. Oppgi en tydelig rotårsak (for muligheter: den utløsende forutsetningen) og handlingsrettede tiltak. For trusler reduserer tiltaket risikoen; for muligheter utnytter eller forsterker tiltaket muligheten.
 5. Vær spesifikk for det beskrevne prosjektet — unngå generiske standardrisikoer og generiske muligheter som «bedre kunderelasjon».
 6. List alle trusler først, deretter mulighetene. Nummerer id fortløpende.
+7. Skriv all fritekst (category, description, root_cause, mitigation) på norsk bokmål, også hvis prosjektbeskrivelsen eller vedleggene er på engelsk. Kategorinavnene skal også være på norsk. Feltverdiene for type, likelihood og consequence skal stå nøyaktig som i JSON-malen (engelsk).
 
 Risikomatrisedefinisjonene ({frameworkName}):
 
@@ -2187,6 +2200,75 @@ function setLanguage(lang) {
     document.querySelectorAll('.lang-chip').forEach(c => c.classList.toggle('active', c.dataset.lang === lang));
     translateUI();
     setPreset(activePreset);
+    if (risks.length > 0 && registerLang !== lang) translateRegister(lang);
+}
+
+/* ═══════════════════════════════════════════════════
+   Register Translation (AI text follows the UI language)
+   ═══════════════════════════════════════════════════ */
+const TEXT_FIELDS = ['category', 'description', 'root_cause', 'mitigation', 'ai_comment'];
+
+function snapshotRegisterText() {
+    const items = {};
+    risks.forEach(r => { items[r.id] = Object.fromEntries(TEXT_FIELDS.map(f => [f, r[f] || ''])); });
+    return { items, summary: reassessmentSummary };
+}
+
+function applyRegisterText(snap) {
+    risks.forEach(r => {
+        const t = snap.items[r.id];
+        if (t) TEXT_FIELDS.forEach(f => { if (typeof t[f] === 'string') r[f] = t[f]; });
+    });
+    if (typeof snap.summary === 'string') reassessmentSummary = snap.summary;
+}
+
+/* Call after the AI or an import has produced new register text */
+function resetRegisterLanguage(lang) {
+    registerLang = lang;
+    translationCache = {};
+    translationRun++;
+}
+
+function rerenderRegister() {
+    renderMatrix();
+    renderSummary();
+    renderPriority();
+    renderTable();
+    if (document.getElementById('reassess-banner').classList.contains('visible')) showReassessBanner();
+}
+
+async function translateRegister(lang) {
+    if (registerLang) translationCache[registerLang] = snapshotRegisterText();
+    // Only reuse a cached version if the register still has the same items
+    const cached = translationCache[lang];
+    if (cached && risks.every(r => cached.items[r.id])) {
+        translationRun++; // drop any translation still in flight
+        applyRegisterText(cached);
+        registerLang = lang;
+        rerenderRegister();
+        return;
+    }
+
+    const run = ++translationRun;
+    const statusEl = document.getElementById('risk-summary');
+    statusEl.insertAdjacentHTML('beforeend', `<span class="summary-stat translating-note">${T('translating')}</span>`);
+    const target = lang === 'no' ? 'Norwegian Bokmål' : 'English';
+    const system = `You translate a project risk register to ${target}. Translate every string value in the JSON. Keep the JSON structure, keys and ids exactly. Keep numbers, currencies, standard names (ISO, IEC, DNV) and proper names unchanged. Use established ${target} risk management terminology. Output ONLY valid JSON, no markdown fences, no commentary.`;
+    try {
+        const raw = await callClaudeAPI(system, JSON.stringify(snapshotRegisterText()));
+        if (run !== translationRun) return; // a newer switch or a new register took over
+        let cleaned = raw.trim();
+        if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+        const parsed = JSON.parse(cleaned);
+        if (!parsed.items) throw new Error(T('errors.invalidJson'));
+        applyRegisterText(parsed);
+        registerLang = lang;
+        translationCache[lang] = snapshotRegisterText();
+    } catch (err) {
+        if (run === translationRun) showError(T('errors.translateFailed') + ' ' + err.message);
+    } finally {
+        if (run === translationRun) rerenderRegister();
+    }
 }
 
 function translateUI() {
@@ -2508,6 +2590,7 @@ async function generateRiskAssessment() {
         }));
 
         risks.forEach(r => { r.riskLevel = calcRiskLevel(r.likelihood, r.consequence); });
+        resetRegisterLanguage(currentLang);
 
         // Clear import state for fresh generation
         isImportedRegister = false;
@@ -2810,7 +2893,7 @@ function exportCSV() {
     // Exclude risks marked for closure (user can still Keep them before export)
     const exportRisks = risks.filter(r => r.status !== 'close');
     const rows = exportRisks.map(r => [
-        r.id, isOpp(r) ? 'Opportunity' : 'Threat', csvEscape(r.category), csvEscape(r.description),
+        r.id, isOpp(r) ? T('opportunity.badge') : T('opportunity.threat'), csvEscape(r.category), csvEscape(r.description),
         r.likelihood, r.consequence, r.riskLevel,
         csvEscape(r.root_cause), csvEscape(r.mitigation), csvEscape(r.responsible)
     ]);
@@ -3003,6 +3086,10 @@ function importCSVFile(file) {
 
             // Render everything
             renderAll();
+
+            // The CSV may be in either language: bring its text into the UI language
+            resetRegisterLanguage(null);
+            translateRegister(currentLang);
         } catch (err) {
             errorEl.textContent = T('csvImport.parseError') + err.message;
             errorEl.style.display = 'block';
@@ -3181,6 +3268,7 @@ async function reassessRisks() {
 
         // Store summary
         reassessmentSummary = parsed.summary || '';
+        resetRegisterLanguage(currentLang);
 
         finishProgressFeed('reassessProgressComplete');
 
