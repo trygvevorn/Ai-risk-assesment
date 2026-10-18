@@ -763,6 +763,38 @@
             border-bottom: 1px solid var(--border-subtle);
         }
         .priority-item:last-child { border-bottom: none; }
+        .priority-item { cursor: pointer; border-radius: var(--radius-sm); transition: background 0.15s ease; }
+        .priority-item:hover { background: var(--surface-sunken); }
+        .priority-item:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+        .priority-group {
+            font-family: var(--font-mono);
+            font-size: 0.66rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            padding: 0.9rem 0 0.35rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .priority-group.opportunity { color: var(--accent-blue); }
+        .priority-meta {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.02em;
+            margin-bottom: 0.1rem;
+        }
+        .priority-risk-name {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        @media print { .priority-risk-name { display: block; -webkit-line-clamp: unset; overflow: visible; } }
+        .priority-action-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
         .priority-rank {
             width: 26px; height: 26px;
             border-radius: 4px;
@@ -808,12 +840,33 @@
         .priority-rank.opportunity, .priority-badge.opportunity { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); }
 
         /* ── Opportunities (positive risks) ── */
-        .risk-chip.opportunity { background: var(--white); color: var(--accent-blue); border: 2px solid var(--accent-blue); box-shadow: 0 1px 4px rgba(36, 87, 135, 0.3); }
+        .risk-chip.opportunity { background: var(--accent-blue); color: var(--white); box-shadow: 0 1px 4px rgba(36, 87, 135, 0.35); }
+
+        /* Two matrices side by side when there are opportunities, stacked on narrow screens */
+        .matrix-container.dual { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+        .matrix-container.dual .risk-matrix-wrapper { max-width: 400px; }
+        @media (max-width: 760px) { .matrix-container.dual { grid-template-columns: 1fr; } }
+        .matrix-block-title {
+            text-align: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-bottom: 0.55rem;
+            color: var(--text-primary);
+        }
+        .matrix-container:not(.dual) .matrix-block-title { display: none; }
+        .matrix-block-title.opportunity { color: var(--accent-blue); }
+        .matrix-cell.opp-high { background: rgba(36, 87, 135, 0.24); }
+        .matrix-cell.opp-med { background: rgba(36, 87, 135, 0.13); }
+        .matrix-cell.opp-low { background: rgba(36, 87, 135, 0.05); }
+        .summary-dot.opportunity { background: var(--accent-blue); }
+        .risk-summary { flex-wrap: wrap; row-gap: 0.35rem; }
+        .summary-stat { white-space: nowrap; }
+        .summary-total { margin-left: auto; color: var(--text-tertiary); font-weight: 400; font-size: 0.72rem; }
         .risk-chip.opportunity.highlighted { box-shadow: 0 0 0 2px var(--navy), 0 2px 8px rgba(36, 87, 135, 0.4); }
         .risk-level-badge.opportunity { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); }
         .risk-level-badge.opportunity::before { background: var(--accent-blue); }
         .status-badge.opp-badge { background: rgba(36, 87, 135, 0.12); color: var(--accent-blue); margin-left: 0; margin-bottom: 0.25rem; }
-        .summary-dot.opportunity { background: var(--white); border: 2px solid var(--accent-blue); box-sizing: border-box; }
 
         /* ── Error ── */
         .error-message {
@@ -1468,7 +1521,9 @@
                 <span class="card-title" data-i18n="output.matrix.subtitle">Likelihood vs. Consequence</span>
             </div>
             <div class="risk-summary" id="risk-summary"></div>
-            <div class="matrix-container">
+            <div class="matrix-container" id="matrix-container">
+              <div class="matrix-block">
+                <div class="matrix-block-title threat" data-i18n="output.matrix.threats">Threats</div>
                 <div class="risk-matrix-wrapper" id="risk-matrix">
                     <div class="matrix-corner"><span data-i18n-html="matrixCorner">LIKELIHOOD /<br>CONSEQUENCE</span></div>
                     <div class="matrix-col-header" data-i18n="levels.low">Low</div>
@@ -1488,6 +1543,30 @@
                     <div class="matrix-cell yellow" id="cell-low-high"></div>
                 </div>
                 <div class="matrix-axis-label" data-i18n="output.matrix.axis">Consequence</div>
+              </div>
+              <!-- Opportunities get their own matrix: a high value here is good news, not a red flag -->
+              <div class="matrix-block" id="opp-matrix-block">
+                <div class="matrix-block-title opportunity" data-i18n="output.matrix.opportunities">Opportunities</div>
+                <div class="risk-matrix-wrapper opp-matrix" id="opp-matrix">
+                    <div class="matrix-corner"><span data-i18n-html="matrixCornerOpp">LIKELIHOOD /<br>UPSIDE</span></div>
+                    <div class="matrix-col-header" data-i18n="levels.low">Low</div>
+                    <div class="matrix-col-header" data-i18n="levels.medium">Medium</div>
+                    <div class="matrix-col-header" data-i18n="levels.high">High</div>
+                    <div class="matrix-row-header" data-i18n="levels.high">High</div>
+                    <div class="matrix-cell opp-med" id="opp-cell-high-low"></div>
+                    <div class="matrix-cell opp-high" id="opp-cell-high-medium"></div>
+                    <div class="matrix-cell opp-high" id="opp-cell-high-high"></div>
+                    <div class="matrix-row-header" data-i18n="levels.medium">Medium</div>
+                    <div class="matrix-cell opp-low" id="opp-cell-medium-low"></div>
+                    <div class="matrix-cell opp-med" id="opp-cell-medium-medium"></div>
+                    <div class="matrix-cell opp-high" id="opp-cell-medium-high"></div>
+                    <div class="matrix-row-header" data-i18n="levels.low">Low</div>
+                    <div class="matrix-cell opp-low" id="opp-cell-low-low"></div>
+                    <div class="matrix-cell opp-low" id="opp-cell-low-medium"></div>
+                    <div class="matrix-cell opp-med" id="opp-cell-low-high"></div>
+                </div>
+                <div class="matrix-axis-label" data-i18n="output.matrix.axisOpp">Upside</div>
+              </div>
             </div>
         </div>
 
@@ -1662,7 +1741,7 @@ const LANG = {
       }
     },
     output: {
-      matrix: { title: 'Risk Matrix', subtitle: 'Likelihood vs. Consequence', axis: 'Consequence' },
+      matrix: { title: 'Risk Matrix', subtitle: 'Likelihood vs. Consequence', axis: 'Consequence', axisOpp: 'Upside', threats: 'Threats', opportunities: 'Opportunities' },
       priority: { title: 'Treatment Priority', subtitle: 'ISO 31000 Risk Treatment Plan' },
       register: { title: 'Risk Register' },
       exportCsv: 'Export CSV',
@@ -1675,8 +1754,9 @@ const LANG = {
     },
     levels: { high: 'High', medium: 'Medium', low: 'Low' },
     riskLevels: { RED: 'RED', YELLOW: 'YELLOW', GREEN: 'GREEN' },
-    summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified', opportunities: 'Opportunities' },
-    priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor', pursue: 'Pursue' },
+    summary: { high: 'High', medium: 'Medium', low: 'Low', risksIdentified: 'risks identified', opportunities: 'Opportunities', total: '{t} threats · {o} opportunities' },
+    priority: { actNow: 'Act Now', plan: 'Plan', monitor: 'Monitor', pursue: 'Pursue', groupThreats: 'Threats', groupOpps: 'Opportunities', action: 'Action:', exploit: 'Exploit:' },
+    matrixCornerOpp: 'LIKELIHOOD /<br>UPSIDE',
     opportunity: { badge: 'Opportunity', level: 'Upside', threat: 'Threat' },
     translating: 'Translating register…',
     progress: [
@@ -1698,6 +1778,7 @@ const LANG = {
       rateLimit: 'Rate limit exceeded. Please wait a moment.',
       apiError: 'API error',
       emptyResponse: 'Empty response from the API.',
+      truncated: 'The AI answer was too long and got cut off. Try again; if it repeats, use a smaller register.',
       translateFailed: 'Could not translate the register. The text stays in the original language.'
     },
     rootCause: 'Root cause:',
@@ -1970,7 +2051,7 @@ Team & Resources:
       }
     },
     output: {
-      matrix: { title: 'Risikomatrise', subtitle: 'Sannsynlighet vs. konsekvens', axis: 'Konsekvens' },
+      matrix: { title: 'Risikomatrise', subtitle: 'Sannsynlighet vs. konsekvens', axis: 'Konsekvens', axisOpp: 'Gevinst', threats: 'Trusler', opportunities: 'Muligheter' },
       priority: { title: 'Behandlingsprioritet', subtitle: 'ISO 31000 risikobehandlingsplan' },
       register: { title: 'Risikoregister' },
       exportCsv: 'Eksporter CSV',
@@ -1983,8 +2064,9 @@ Team & Resources:
     },
     levels: { high: 'Høy', medium: 'Middels', low: 'Lav' },
     riskLevels: { RED: 'RØD', YELLOW: 'GUL', GREEN: 'GRØNN' },
-    summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert', opportunities: 'Muligheter' },
-    priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk', pursue: 'Utnytt' },
+    summary: { high: 'Høy', medium: 'Middels', low: 'Lav', risksIdentified: 'risikoer identifisert', opportunities: 'Muligheter', total: '{t} trusler · {o} muligheter' },
+    priority: { actNow: 'Handle nå', plan: 'Planlegg', monitor: 'Overvåk', pursue: 'Utnytt', groupThreats: 'Trusler', groupOpps: 'Muligheter', action: 'Tiltak:', exploit: 'Gevinsttiltak:' },
+    matrixCornerOpp: 'SANNSYNLIGHET /<br>GEVINST',
     opportunity: { badge: 'Mulighet', level: 'Gevinst', threat: 'Trussel' },
     translating: 'Oversetter registeret…',
     progress: [
@@ -2006,6 +2088,7 @@ Team & Resources:
       rateLimit: 'Hastighetsgrense overskredet. Vennligst vent et øyeblikk.',
       apiError: 'API-feil',
       emptyResponse: 'Tomt svar fra API-et.',
+      truncated: 'AI-svaret ble for langt og ble kuttet. Prøv igjen, og bruk et mindre register hvis det gjentar seg.',
       translateFailed: 'Kunne ikke oversette registeret. Teksten står på originalspråket.'
     },
     rootCause: 'Rotårsak:',
@@ -2257,9 +2340,7 @@ async function translateRegister(lang) {
     try {
         const raw = await callClaudeAPI(system, JSON.stringify(snapshotRegisterText()));
         if (run !== translationRun) return; // a newer switch or a new register took over
-        let cleaned = raw.trim();
-        if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
-        const parsed = JSON.parse(cleaned);
+        const parsed = parseAIJson(raw);
         if (!parsed.items) throw new Error(T('errors.invalidJson'));
         applyRegisterText(parsed);
         registerLang = lang;
@@ -2537,8 +2618,21 @@ async function callClaudeAPI(systemPrompt, userPrompt) {
     const data = await response.json();
     // Pick the text block by type: newer models may return thinking blocks before the text.
     const text = data.content?.find(b => b.type === 'text')?.text;
+    if (data.stop_reason === 'max_tokens') throw new Error(T('errors.truncated'));
     if (!text) throw new Error(T('errors.emptyResponse'));
     return text;
+}
+
+/* Parse the model's JSON even if it adds a fence or a sentence around it */
+function parseAIJson(raw) {
+    let s = raw.trim();
+    if (s.startsWith('```')) s = s.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+    try { return JSON.parse(s); } catch (e) { /* fall through to extraction */ }
+    const start = s.indexOf('{'), end = s.lastIndexOf('}');
+    if (start !== -1 && end > start) {
+        try { return JSON.parse(s.slice(start, end + 1)); } catch (e) { /* invalid either way */ }
+    }
+    throw new Error(T('errors.invalidJson'));
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2560,23 +2654,15 @@ async function generateRiskAssessment() {
     try {
         const systemPrompt = buildSystemPrompt();
         const userPrompt = buildUserPrompt(category, context);
-        const raw = await callClaudeAPI(systemPrompt, userPrompt);
-
-        let cleaned = raw.trim();
-        if (cleaned.startsWith('```')) {
-            cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
-        }
-
-        let parsed;
-        try { parsed = JSON.parse(cleaned); }
-        catch (e) { throw new Error(T('errors.invalidJson')); }
+        const parsed = parseAIJson(await callClaudeAPI(systemPrompt, userPrompt));
 
         if (!Array.isArray(parsed.risks) || parsed.risks.length === 0) {
             throw new Error(T('errors.noRisks'));
         }
 
+        // ids must be numbers: highlighting and updates compare with ===, and ids go into markup
         risks = parsed.risks.map((r, i) => ({
-            id: r.id || (i + 1),
+            id: parseInt(r.id, 10) || (i + 1),
             type: normType(r.type),
             category: r.category || 'General',
             description: r.description || '',
@@ -2692,26 +2778,29 @@ function renderMatrix() {
     document.querySelectorAll('.risk-chip').forEach(el => el.remove());
     document.querySelectorAll('.matrix-label').forEach(el => el.remove());
 
+    // Threats go in the threat matrix, opportunities in the opportunity matrix (prefix "opp-")
     const cellMap = {};
     risks.forEach(r => {
-        const key = `${r.likelihood.toLowerCase()}-${r.consequence.toLowerCase()}`;
+        const key = `${isOpp(r) ? 'opp-' : ''}cell-${r.likelihood.toLowerCase()}-${r.consequence.toLowerCase()}`;
         if (!cellMap[key]) cellMap[key] = [];
         cellMap[key].push(r);
     });
 
-    const cellIds = {
-        'high-low':'cell-high-low','high-medium':'cell-high-medium','high-high':'cell-high-high',
-        'medium-low':'cell-medium-low','medium-medium':'cell-medium-medium','medium-high':'cell-medium-high',
-        'low-low':'cell-low-low','low-medium':'cell-low-medium','low-high':'cell-low-high'
-    };
+    const hasOpps = risks.some(isOpp);
+    document.getElementById('opp-matrix-block').style.display = hasOpps ? '' : 'none';
+    document.getElementById('matrix-container').classList.toggle('dual', hasOpps);
 
-    Object.entries(cellIds).forEach(([key, id]) => {
-        const cell = document.getElementById(id);
-        const riskList = cellMap[key] || [];
+    const emptyLabel = cell =>
+        cell.classList.contains('red') ? T('riskLevels.RED') : cell.classList.contains('yellow') ? T('riskLevels.YELLOW')
+        : cell.classList.contains('green') ? T('riskLevels.GREEN')
+        : T('levels.' + (cell.classList.contains('opp-high') ? 'high' : cell.classList.contains('opp-med') ? 'medium' : 'low'));
+
+    document.querySelectorAll('#risk-matrix .matrix-cell, #opp-matrix .matrix-cell').forEach(cell => {
+        const riskList = cellMap[cell.id] || [];
         if (riskList.length === 0) {
             const lbl = document.createElement('span');
             lbl.className = 'matrix-label';
-            lbl.textContent = cell.classList.contains('red') ? T('riskLevels.RED') : cell.classList.contains('yellow') ? T('riskLevels.YELLOW') : T('riskLevels.GREEN');
+            lbl.textContent = emptyLabel(cell);
             cell.appendChild(lbl);
         } else {
             riskList.forEach(r => {
@@ -2719,9 +2808,9 @@ function renderMatrix() {
                 chip.className = `risk-chip ${isOpp(r) ? 'opportunity' : r.riskLevel.toLowerCase()}`;
                 if (r.status === 'close') chip.style.opacity = '0.35';
                 chip.textContent = r.id;
-                chip.title = `${isOpp(r) ? T('opportunity.badge') + ' ' : ''}R${r.id}: ${r.description.substring(0, 60)}...`;
+                chip.title = `${isOpp(r) ? T('opportunity.badge') + ' ' : ''}R${r.id}: ${r.description.length > 90 ? r.description.substring(0, 90) + '…' : r.description}`;
                 chip.setAttribute('role', 'button');
-                chip.setAttribute('aria-label', `Risk ${r.id}: ${r.category}`);
+                chip.setAttribute('aria-label', `R${r.id}: ${r.description}`);
                 chip.setAttribute('tabindex', '0');
                 chip.onclick = () => toggleHighlight(r.id);
                 chip.onkeydown = (e) => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); toggleHighlight(r.id); }};
@@ -2741,8 +2830,7 @@ function renderSummary() {
         <span class="summary-stat"><span class="summary-dot red"></span>${counts.RED} ${T('summary.high')}</span>
         <span class="summary-stat"><span class="summary-dot yellow"></span>${counts.YELLOW} ${T('summary.medium')}</span>
         <span class="summary-stat"><span class="summary-dot green"></span>${counts.GREEN} ${T('summary.low')}</span>
-        ${oppCount ? `<span class="summary-stat"><span class="summary-dot opportunity"></span>${oppCount} ${T('summary.opportunities')}</span>` : ''}
-        <span class="summary-stat" style="margin-left:auto;color:var(--text-tertiary);font-weight:400;font-size:0.72rem;">${activeRisks.length} ${T('summary.risksIdentified')}</span>
+        <span class="summary-stat summary-total">${T('summary.total').replace('{t}', activeRisks.length - oppCount).replace('{o}', oppCount)}</span>
     `;
 }
 
@@ -2759,17 +2847,31 @@ function renderPriority() {
     const container = document.getElementById('priority-list');
     container.innerHTML = '';
 
+    let rank = 0;
     sorted.forEach((r, i) => {
+        // Group headers where threats start and where opportunities start; rank restarts per group
+        if (i === 0 || isOpp(r) !== isOpp(sorted[i - 1])) {
+            rank = 0;
+            const h = document.createElement('div');
+            h.className = `priority-group ${isOpp(r) ? 'opportunity' : 'threat'}`;
+            h.textContent = isOpp(r) ? T('priority.groupOpps') : T('priority.groupThreats');
+            container.appendChild(h);
+        }
         const tier = isOpp(r) ? 'opportunity' : r.riskLevel === 'RED' ? 'critical' : r.riskLevel === 'YELLOW' ? 'important' : 'monitor';
         const tierLabel = isOpp(r) ? T('priority.pursue') : r.riskLevel === 'RED' ? T('priority.actNow') : r.riskLevel === 'YELLOW' ? T('priority.plan') : T('priority.monitor');
 
         const item = document.createElement('div');
         item.className = 'priority-item';
+        item.setAttribute('role', 'button');
+        item.setAttribute('tabindex', '0');
+        item.onclick = () => toggleHighlight(r.id);
+        item.onkeydown = (e) => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); toggleHighlight(r.id); }};
         item.innerHTML = `
-            <div class="priority-rank ${tier}">${i + 1}</div>
+            <div class="priority-rank ${tier}">${++rank}</div>
             <div class="priority-body">
-                <div class="priority-risk-name">R${r.id} — ${escHTML(r.category)}</div>
-                <div class="priority-action">${escHTML(r.mitigation)}</div>
+                <div class="priority-meta">R${r.id} · ${escHTML(r.category)}</div>
+                <div class="priority-risk-name">${escHTML(r.description)}</div>
+                <div class="priority-action"><span class="priority-action-label">${isOpp(r) ? T('priority.exploit') : T('priority.action')}</span> ${escHTML(r.mitigation)}</div>
             </div>
             <div class="priority-badge ${tier}">${tierLabel}</div>
         `;
@@ -3220,21 +3322,12 @@ async function reassessRisks() {
     try {
         const systemPrompt = buildReassessSystemPrompt();
         const userPrompt = buildReassessUserPrompt();
-        const raw = await callClaudeAPI(systemPrompt, userPrompt);
-
-        let cleaned = raw.trim();
-        if (cleaned.startsWith('```')) {
-            cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
-        }
-
-        let parsed;
-        try { parsed = JSON.parse(cleaned); }
-        catch (e) { throw new Error(T('errors.invalidJson')); }
+        const parsed = parseAIJson(await callClaudeAPI(systemPrompt, userPrompt));
 
         // Merge existing risk updates
         if (Array.isArray(parsed.existing_risks)) {
             parsed.existing_risks.forEach(update => {
-                const existing = risks.find(r => r.id === update.id);
+                const existing = risks.find(r => r.id === parseInt(update.id, 10));
                 if (!existing) return;
                 if (update.likelihood) existing.likelihood = normLevel(update.likelihood);
                 if (update.consequence) existing.consequence = normLevel(update.consequence);
@@ -3250,7 +3343,7 @@ async function reassessRisks() {
             const maxId = risks.reduce((max, r) => Math.max(max, r.id), 0);
             parsed.new_risks.forEach((nr, i) => {
                 risks.push({
-                    id: nr.id || (maxId + i + 1),
+                    id: parseInt(nr.id, 10) || (maxId + i + 1),
                     type: normType(nr.type),
                     category: nr.category || 'General',
                     description: nr.description || '',
